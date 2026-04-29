@@ -1,95 +1,79 @@
-#MQTT Network Simulation (AnyLogic) 
+# 🌐 FinalCCNProject: IoT Network Simulation & AI-Assisted Dashboard
 
-A Computer Networks final project built in **AnyLogic 8.9.x** to simulate an **MQTT traffic pipeline** (arrival table → network latency → buffering → cloud sink), with a companion **animated dashboard** that visualizes the dataset and “packet flow” in a presentation-ready way.
+> **Semester Project — Computer Communications and Networks**  
+> **Author:** Zain ul Abdeen (BS Artificial Intelligence, GIKI)
 
-## What’s inside
+## 📌 Project Overview
+The **FinalCCNProject** is an advanced, hybrid simulation of an **IoT (Internet of Things)** MQTT traffic pipeline. By combining **Agent-Based Modeling (ABM)** with **Discrete Event Simulation (DES)** via **AnyLogic**, this project moves beyond standard theoretical network topologies. It grounds the simulation in **real-world traffic data** and enhances it with an embedded **AI-assisted latency prediction model**.
 
-- **AnyLogic model**: `FinalCCNProject.alp`
-- **Model database (HSQL)**: `database/` (contains the `MQTT_READY` table)
-- **Animated dashboard (web)**: `dashboard/` (Canvas network animation + charts)
-- **Data extraction tool**: `tools/extract_mqtt_ready.py` (exports `MQTT_READY` from `db.script` → JSON/CSV for the dashboard)
+A beautiful companion **Animated Dashboard** visualizes the packet-level flows and KPIs natively in the browser, providing a compelling, interactive presentation of real-time network throughput and packet latency.
 
-## Quick start
+## ✨ Key Features
+- **Real-World Data Injection:** Integrates the open-source **UCI RT-IoT2022** dataset for scientifically grounded traffic inter-arrival times and packet payloads.
+- **Embedded AI Predictor:** Uses a lightweight `scikit-learn` Linear Regression model, integrated via Jython, acting as a surrogate oracle within the simulation for real-time latency estimation.
+- **Hybrid AnyLogic Architecture:** Uses the Process Modeling Library (queuing, delays, service blocks) combined with intelligent network agents.
+- **Animated Browser Dashboard:** A 60-FPS HTML5 Canvas and Chart.js dashboard visually replays the sensor-to-cloud journey, providing real-time insights (Histograms, Time-series, KPI aggregations).
 
-### 1) Open & run the AnyLogic model
+## 🗂️ Workspace Architecture
 
-1. Install **AnyLogic 8.9+**.
-2. Open the project file: `FinalCCNProject.alp`
-3. Run the **Simulation** experiment.
-
-### 2) Generate dashboard data
-
-From the repository root:
-
-- `python tools/extract_mqtt_ready.py`
-
-Windows (no Python required):
-
-- `powershell -ExecutionPolicy Bypass -File tools/extract_mqtt_ready.ps1`
-
-This reads `database/db.script` and writes:
-
-- `dashboard/data/mqtt_ready.json`
-- `dashboard/data/mqtt_ready.csv`
-
-### 3) Launch the animated dashboard
-
-Zero-setup (recommended for demos):
-
-- Open `dashboard/index.html` directly.
-
-If you prefer to serve it locally (e.g., for browser caching/devtools):
-
-- `python -m http.server 8000`
-
-Then open:
-
-- `http://localhost:8000/dashboard/`
-
-## Model overview
-
-### Flow (Process Modeling)
-
-```mermaid
-flowchart LR
-  A[Source\n(Database Arrival Table)] --> B[Delay\nNetwork Latency]
-  B --> C[Queue\nMQTT Buffer]
-  C --> D[Sink\nCloud Received]
+```text
+FinalCCNProject/
+├── 📊 FinalCCNProject.alp       # Core AnyLogic Simulation Model
+├── 🌐 dashboard/                 # Animated UI & Presentation Dashboard
+│   ├── index.html               # Presentation View (Live Animations & KPIs)
+│   ├── app.js / styles.css      # Vanilla JS + CSS (Chart.js embedded)
+│   └── data/                    # Extracted outputs bridging Model with Web UI
+├── 💾 database/                  # HSQLDB database (contains MQTT_READY logs)
+└── 🛠️ tools/                     # Automation & Data parsing
+    ├── extract_mqtt_ready.py    # Extracts AnyLogic DB records to JSON/JS
+    ├── extract_mqtt_ready.ps1   # PowerShell equivalent 
+    └── proposal_extracted.txt   # Core academic research and justification 
 ```
 
-### Entities / agents
+## 🚀 Quick Start Guide
 
-- `MQTTPacket`: carries `packet_size`, `inter_arrival`, `flow_duration`
-- `NetworkMetrics`: records and summarizes latency statistics
+### 1. Run the AnyLogic Model
+1. Install **AnyLogic 8.9+**.
+2. Open the project file: `FinalCCNProject.alp`.
+3. Launch the **Simulation** experiment to flow virtual packets and log telemetry to the internal `MQTT_READY` HSQLDB table.
 
-## Dashboard overview
+### 2. Extract Data for the Dashboard
+Extract the simulation data payload from the embedded AnyLogic database to feed the animated UI:
+```bash
+# Using Python
+python tools/extract_mqtt_ready.py
 
-The dashboard is designed for demos/presentations:
+# OR Using PowerShell (Windows native, no Python needed)
+powershell -ExecutionPolicy Bypass -File tools/extract_mqtt_ready.ps1
+```
+*(This extracts raw rows from `database/db.script` and writes `mqtt_ready.js`, `.json`, and `.csv` cleanly into `dashboard/data/`.)*
 
-- **Canvas animation**: packets travel Sensor → Gateway → Cloud with smooth motion and glow
-- **Charts**: latency time-series, histogram, and size-vs-latency scatter
-- **Animated counters**: totals and key KPIs count up on load
+### 3. Launch the Interactive Dashboard
+The dashboard operates purely on the client side with a standalone runtime:
+- Opening `dashboard/index.html` directly in any modern browser works seamlessly (`file://`).
+- *Optional:* Serve it locally (`python -m http.server 8000` then visit `http://localhost:8000/dashboard/`).
 
-## Notes for portability
+## ⚙️ Technical Blueprint
 
-- The AnyLogic model was cleaned to remove hard-coded local file paths (like `C:/Users/.../Downloads/...`).
-- The project data is taken from the included `database/db.script`, so the project stays self-contained.
+### Network Simulation Lifecycle
+```mermaid
+flowchart LR
+    A[IoT Dataset\nSource] --> |MQTT Payload & Inter-arrival| B[IoT Edge / Gateway\nNetwork Latency Delay]
+    B --> C[MQTT Broker Buffer\nQueue Simulation]
+    C --> D[Cloud Sink\nTelemetry Logged]
+```
 
-## Recommended demo script (for presentation)
+### Technology Stack
+- **Simulation Modeling:** AnyLogic 8.9.x (DES + ABM)
+- **Data Backend:** HSQLDB (AnyLogic internal)
+- **Machine Learning Component:** Python, Scikit-Learn (Linear Regression), joblib
+- **Data Dashboard Tooling:** HTML5 Canvas, Vanilla Javascript, Chart.js
+- **Pipelines:** Python / PowerShell
 
-1. Run the AnyLogic simulation and explain the flow blocks.
-2. Show that the dataset comes from the built-in HSQL database table.
-3. Open the dashboard and explain:
-   - live-feel packet animation
-   - real dataset charts
-   - KPI counters (avg/min/max/std-dev latency)
-
-## Tech
-
-- AnyLogic 8.9.x (Process Modeling Library)
-- HSQLDB (AnyLogic internal database)
-- Dashboard: HTML/CSS/JS + Chart.js (CDN)
+## 🔬 Academic Justification & Research Focus
+As detailed in the fundamental project proposal, IoT environments suffer from resource restraints (energy, bandwidth, processing). 
+- **The Dataset**: The UCI dataset ensures the packets traveling through the queues reflect realistic MQTT/CoAP characteristics.
+- **The AI Predictor**: A Linear Regression model is deliberately chosen for its sub-millisecond inference speeds and analytical transparency. It doesn't require a GPU, guaranteeing the AnyLogic simulation stays fluid without external bottlenecks.
 
 ---
-
-If you want, tell me what your teacher expects (network topology view vs. charts), and I can tune the dashboard visuals and terminology to match your report.
+*Created for the GIKI Computer Communications & Networks course.*

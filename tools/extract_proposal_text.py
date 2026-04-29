@@ -142,7 +142,9 @@ def extract_text(pdf_path: Path) -> str:
 
     # Finds: << ... >> stream ... endstream
     # This is sufficient for small ReportLab PDFs.
-    pattern = re.compile(rb"<<(.*?)>>\s*stream\r?\n(.*?)\r?\nendstream", re.S)
+    # Note: ReportLab commonly uses ASCII85 streams that end with `~>endstream`
+    # (no newline before endstream), so the newline before `endstream` must be optional.
+    pattern = re.compile(rb"<<(.*?)>>\s*stream\r?\n(.*?)\r?\n?endstream", re.S)
 
     all_strings: list[str] = []
     for m in pattern.finditer(data):
