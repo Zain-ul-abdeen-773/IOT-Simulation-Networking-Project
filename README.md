@@ -1,4 +1,4 @@
-# FinalCCNProject — MQTT Network Simulation (AnyLogic) + Animated Dashboard
+#MQTT Network Simulation (AnyLogic) 
 
 A Computer Networks final project built in **AnyLogic 8.9.x** to simulate an **MQTT traffic pipeline** (arrival table → network latency → buffering → cloud sink), with a companion **animated dashboard** that visualizes the dataset and “packet flow” in a presentation-ready way.
 
