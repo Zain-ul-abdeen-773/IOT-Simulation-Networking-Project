@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg0: #070a12;
+  --color-bg1: #0b1630;
+  --color-card: rgba(255, 255, 255, 0.06);
+  --color-cardBorder: rgba(255, 255, 255, 0.10);
+  --color-accent: #7c5cff;
+  --color-accent2: #22d3ee;
+  --color-good: #34d399;
+  --color-warn: #f59e0b;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg0);
+    color: white;
+    overflow-x: hidden;
+    font-family: var(--font-sans);
+    background: radial-gradient(1200px 900px at 20% 10%, rgba(124, 92, 255, 0.15), transparent 55%),
+      radial-gradient(1000px 800px at 80% 20%, rgba(34, 211, 238, 0.10), transparent 55%),
+      linear-gradient(180deg, var(--color-bg0), var(--color-bg1));
+  }
+}
+
+.bg-effects {
+  position: fixed;
+  inset: -40vh -40vw;
+  pointer-events: none;
+  background: radial-gradient(closest-side at 30% 20%, rgba(124, 92, 255, 0.20), transparent 55%),
+    radial-gradient(closest-side at 75% 25%, rgba(34, 211, 238, 0.15), transparent 55%),
+    radial-gradient(closest-side at 55% 85%, rgba(52, 211, 153, 0.08), transparent 60%);
+  filter: blur(60px);
+  opacity: 0.8;
+  animation: drift 15s ease-in-out infinite alternate;
+  z-index: -1;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-2%, -2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, 2%, 0) scale(1.05);
+  }
+}
+
+.glass-card {
+  border-radius: 18px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(500px 140px at 20% 0%, rgba(124, 92, 255, 0.18), transparent 55%),
+    radial-gradient(500px 140px at 80% 0%, rgba(34, 211, 238, 0.10), transparent 55%);
+  opacity: 0.8;
+  pointer-events: none;
+}
