@@ -1416,39 +1416,6 @@
 		<Logging>false</Logging>
 		<AutoExport>false</AutoExport>
 		<ShutdownCompact>false</ShutdownCompact>
-		<ImportSettings>
-			<ExternalConnection>
-				<Id>1777133874994</Id>
-				<Name><![CDATA[database]]></Name>
-				<X>0</X><Y>0</Y>
-				<Label><X>10</X><Y>0</Y></Label>
-				<PublicFlag>false</PublicFlag>
-				<PresentationFlag>true</PresentationFlag>
-				<ShowLabel>true</ShowLabel>
-				<DatabaseType>EXCEL_ACCESS</DatabaseType>
-				<ConnectionURL><![CDATA[]]></ConnectionURL>
-				<ConnectOnStartup>true</ConnectOnStartup>
-				<DatabaseName><![CDATA[]]></DatabaseName>
-				<ResourceReference>
-					<PackageName><![CDATA[finalccnproject]]></PackageName>
-					<ClassName><![CDATA[C:/Users/VICTUS/Downloads/mqtt_ready.csv.xlsx]]></ClassName>
-				</ResourceReference>
-				<Host><![CDATA[localhost]]></Host>
-				<JdbcDriverClassName><![CDATA[net.sourceforge.jtds.jdbc.Driver]]></JdbcDriverClassName>
-				<Login><![CDATA[]]></Login>
-				<Password><![CDATA[]]></Password>
-			</ExternalConnection>
-			<TableImportSettings>
-				<Id>1777133880887</Id>
-				<TableReference>
-					<PackageName><![CDATA[finalccnproject]]></PackageName>
-					<ClassName><![CDATA[mqtt_ready]]></ClassName>
-				</TableReference>
-				<ConnectionIndex>0</ConnectionIndex>
-				<ExternalTableName><![CDATA["mqtt_ready"]]></ExternalTableName>
-				<AutoImport>false</AutoImport>
-			</TableImportSettings>
-		</ImportSettings>
 		<ExportSettings>
 		</ExportSettings>
 	</Database>
@@ -1541,33 +1508,58 @@
 			<Id>1777132038617</Id>
 			<Name><![CDATA[NetworkMetrics]]></Name>
 			<Text><![CDATA[public class NetworkMetrics {
-    public double totalLatency = 0;
-    public int packetCount = 0;
+	// Kept public for backwards-compatibility with AnyLogic inspectors/user code
+	public double totalLatency = 0;
+	public int packetCount = 0;
 
-    public void recordLatency(double latency) {
-        totalLatency += latency;
-        packetCount++;
-    }
+	public double minLatency = Double.POSITIVE_INFINITY;
+	public double maxLatency = Double.NEGATIVE_INFINITY;
 
-    public double getAverageLatency() {
-        return packetCount == 0 ? 0 : totalLatency / packetCount;
-    }
+	// Online variance (Welford)
+	private double meanLatency = 0;
+	private double m2Latency = 0;
+
+	public void recordLatency(double latency) {
+		totalLatency += latency;
+		packetCount++;
+
+		if (latency < minLatency) minLatency = latency;
+		if (latency > maxLatency) maxLatency = latency;
+
+		double delta = latency - meanLatency;
+		meanLatency += delta / packetCount;
+		double delta2 = latency - meanLatency;
+		m2Latency += delta * delta2;
+	}
+
+	public double getAverageLatency() {
+		return packetCount == 0 ? 0 : totalLatency / packetCount;
+	}
+
+	public double getMinLatency() {
+		return packetCount == 0 ? 0 : minLatency;
+	}
+
+	public double getMaxLatency() {
+		return packetCount == 0 ? 0 : maxLatency;
+	}
+
+	public double getStdDevLatency() {
+		return packetCount < 2 ? 0 : Math.sqrt(m2Latency / (packetCount - 1));
+	}
+
+	public void reset() {
+		totalLatency = 0;
+		packetCount = 0;
+		minLatency = Double.POSITIVE_INFINITY;
+		maxLatency = Double.NEGATIVE_INFINITY;
+		meanLatency = 0;
+		m2Latency = 0;
+	}
 }]]></Text>
 		</JavaClass>
 	</JavaClasses>
 	<ModelResources>
-		<Resource>
-			<Id>1777130402426</Id>
-			<Path><![CDATA[C:/Users/VICTUS/Downloads/mqtt_cleaned.csv.xlsx]]></Path>
-			<ReferencedFromUserCode>false</ReferencedFromUserCode>
-			<Location>FILE_SYSTEM</Location>
-		</Resource>
-		<Resource>
-			<Id>1777133874387</Id>
-			<Path><![CDATA[C:/Users/VICTUS/Downloads/mqtt_ready.csv.xlsx]]></Path>
-			<ReferencedFromUserCode>false</ReferencedFromUserCode>
-			<Location>FILE_SYSTEM</Location>
-		</Resource>
 	</ModelResources>
     <RequiredLibraryReference>
 		<LibraryName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></LibraryName>

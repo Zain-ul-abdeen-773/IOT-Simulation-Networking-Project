@@ -96,8 +96,8 @@ def main() -> int:
     parser.add_argument(
         "--db-script",
         type=Path,
-        default=repo_root / "FinalCCNProject" / "database" / "db.script",
-        help="Path to AnyLogic db.script (default: FinalCCNProject/database/db.script)",
+        default=repo_root / "database" / "db.script",
+        help="Path to AnyLogic db.script (default: database/db.script)",
     )
     parser.add_argument(
         "--out-dir",
@@ -112,7 +112,11 @@ def main() -> int:
     out_dir: Path = args.out_dir
 
     if not db_script_path.exists():
-        raise SystemExit(f"db.script not found: {db_script_path}")
+        nested = repo_root / "FinalCCNProject" / "database" / "db.script"
+        if nested.exists():
+            db_script_path = nested
+        else:
+            raise SystemExit(f"db.script not found: {db_script_path}")
 
     rows = extract_mqtt_ready(db_script_path)
 

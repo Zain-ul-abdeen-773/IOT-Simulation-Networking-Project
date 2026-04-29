@@ -4,8 +4,8 @@ A Computer Networks final project built in **AnyLogic 8.9.x** to simulate an **M
 
 ## What’s inside
 
-- **AnyLogic model**: `FinalCCNProject/FinalCCNProject.alp`
-- **Model database (HSQL)**: `FinalCCNProject/database/` (contains the `MQTT_READY` table)
+- **AnyLogic model**: `FinalCCNProject.alp`
+- **Model database (HSQL)**: `database/` (contains the `MQTT_READY` table)
 - **Animated dashboard (web)**: `dashboard/` (Canvas network animation + charts)
 - **Data extraction tool**: `tools/extract_mqtt_ready.py` (exports `MQTT_READY` from `db.script` → JSON/CSV for the dashboard)
 
@@ -14,7 +14,7 @@ A Computer Networks final project built in **AnyLogic 8.9.x** to simulate an **M
 ### 1) Open & run the AnyLogic model
 
 1. Install **AnyLogic 8.9+**.
-2. Open the project file: `FinalCCNProject/FinalCCNProject.alp`
+2. Open the project file: `FinalCCNProject.alp`
 3. Run the **Simulation** experiment.
 
 ### 2) Generate dashboard data
@@ -23,7 +23,11 @@ From the repository root:
 
 - `python tools/extract_mqtt_ready.py`
 
-This reads `FinalCCNProject/database/db.script` and writes:
+Windows (no Python required):
+
+- `powershell -ExecutionPolicy Bypass -File tools/extract_mqtt_ready.ps1`
+
+This reads `database/db.script` and writes:
 
 - `dashboard/data/mqtt_ready.json`
 - `dashboard/data/mqtt_ready.csv`
@@ -65,7 +69,7 @@ The dashboard is designed for demos/presentations:
 ## Notes for portability
 
 - The AnyLogic model was cleaned to remove hard-coded local file paths (like `C:/Users/.../Downloads/...`).
-- The project data is taken from the included `FinalCCNProject/database/db.script`, so the project stays self-contained.
+- The project data is taken from the included `database/db.script`, so the project stays self-contained.
 
 ## Recommended demo script (for presentation)
 
