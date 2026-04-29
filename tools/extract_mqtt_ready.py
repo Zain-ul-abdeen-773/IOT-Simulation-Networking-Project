@@ -63,6 +63,25 @@ def write_json(rows: List[MqttReadyRow], out_path: Path, source_rel: str) -> Non
     out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
+def write_js(rows: List[MqttReadyRow], out_path: Path, source_rel: str) -> None:
+    payload = {
+        "generatedAt": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+        "source": source_rel.replace("\\", "/"),
+        "rowCount": len(rows),
+        "rows": [r.__dict__ for r in rows],
+    }
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    js = (
+        "// Auto-generated. Do not edit by hand.\n"
+        f"// Source: {payload['source']}\n"
+        "window.__MQTT_READY__ = \n"
+        + json.dumps(payload, indent=2)
+        + ";\n"
+    )
+    out_path.write_text(js, encoding="utf-8")
+
+
 def write_csv(rows: List[MqttReadyRow], out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", newline="", encoding="utf-8") as f:
@@ -122,6 +141,7 @@ def main() -> int:
 
     out_json = out_dir / "mqtt_ready.json"
     out_csv = out_dir / "mqtt_ready.csv"
+    out_js = out_dir / "mqtt_ready.js"
 
     # Use repo-relative source path for portability
     try:
@@ -131,6 +151,7 @@ def main() -> int:
 
     write_json(rows, out_json, source_rel=source_rel)
     write_csv(rows, out_csv)
+    write_js(rows, out_js, source_rel=source_rel)
 
     first_ts = rows[0].arrivalTimestamp if rows else "-"
     last_ts = rows[-1].arrivalTimestamp if rows else "-"
@@ -139,6 +160,7 @@ def main() -> int:
     print(f"Time range: {first_ts} → {last_ts}")
     print(f"Wrote: {out_json}")
     print(f"Wrote: {out_csv}")
+    print(f"Wrote: {out_js}")
 
     return 0
 

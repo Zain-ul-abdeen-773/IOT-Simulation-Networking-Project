@@ -69,9 +69,20 @@ $payload = [pscustomobject]@{
 
 $jsonPath = Join-Path $OutDir "mqtt_ready.json"
 $csvPath = Join-Path $OutDir "mqtt_ready.csv"
+$jsPath = Join-Path $OutDir "mqtt_ready.js"
 
 $payload | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $jsonPath -Encoding UTF8
 $rows | Export-Csv -LiteralPath $csvPath -NoTypeInformation -Encoding UTF8
+
+$js = @(
+  "// Auto-generated. Do not edit by hand.",
+  "// Source: $($payload.source)",
+  "window.__MQTT_READY__ = ",
+  ($payload | ConvertTo-Json -Depth 6),
+  ";"
+) -join "`n"
+
+$js | Set-Content -LiteralPath $jsPath -Encoding UTF8
 
 $first = if ($rows.Count -gt 0) { $rows[0].arrivalTimestamp } else { "-" }
 $last = if ($rows.Count -gt 0) { $rows[$rows.Count - 1].arrivalTimestamp } else { "-" }
@@ -80,3 +91,4 @@ Write-Host "Extracted $($rows.Count) rows"
 Write-Host "Time range: $first → $last"
 Write-Host "Wrote: $jsonPath"
 Write-Host "Wrote: $csvPath"
+Write-Host "Wrote: $jsPath"

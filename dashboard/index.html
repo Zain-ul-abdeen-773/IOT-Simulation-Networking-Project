@@ -106,11 +106,17 @@
         Data source: <span class="mono">dashboard/data/mqtt_ready.json</span> (generated from
         AnyLogic <span class="mono">db.script</span>)
       </div>
-      <div class="muted">Tip: run <span class="mono">python tools/extract_mqtt_ready.py</span> after new simulation data.</div>
+      <div class="muted">
+        Tip: re-generate data with <span class="mono">tools/extract_mqtt_ready.ps1</span> (Windows) or
+        <span class="mono">python tools/extract_mqtt_ready.py</span>.
+      </div>
     </footer>
 
     <!-- Chart.js (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script type="module" src="./src/main.js"></script>
+    <!-- Data payload (generated from AnyLogic db.script) -->
+    <script src="./data/mqtt_ready.js"></script>
+    <!-- Standalone runtime (works on file:// and http://) -->
+    <script defer src="./app.js"></script>
   </body>
 </html>

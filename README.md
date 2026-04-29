@@ -34,7 +34,11 @@ This reads `database/db.script` and writes:
 
 ### 3) Launch the animated dashboard
 
-From the repository root:
+Zero-setup (recommended for demos):
+
+- Open `dashboard/index.html` directly.
+
+If you prefer to serve it locally (e.g., for browser caching/devtools):
 
 - `python -m http.server 8000`
 

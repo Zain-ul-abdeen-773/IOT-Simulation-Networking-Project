@@ -1,4 +1,7 @@
-﻿{
+﻿// Auto-generated. Do not edit by hand.
+// Source: D:/Study/Computer Networks/FinalCCNProject/database/db.script
+window.__MQTT_READY__ = 
+{
     "generatedAt":  "2026-04-29T20:46:31Z",
     "source":  "D:/Study/Computer Networks/FinalCCNProject/database/db.script",
     "rowCount":  4132,
@@ -28929,3 +28932,4 @@
                  }
              ]
 }
+;
