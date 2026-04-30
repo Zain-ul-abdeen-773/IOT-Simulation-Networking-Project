@@ -20,7 +20,9 @@ export default function App() {
     fetch('/data/mqtt_ready.json')
       .then(res => res.json())
       .then(json => {
-        setData(json);
+        // The JSON is wrapped in an envelope: { generatedAt, rowCount, rows: [...] }
+        const rows = json.rows || json;
+        setData(rows);
         setLoading(false);
       })
       .catch(err => {
@@ -35,20 +37,20 @@ export default function App() {
 
   // Calculate KPIs
   const packets = data.length;
-  const avgLatency = packets ? data.reduce((a, b) => a + b.flow_duration, 0) / packets : 0;
+  const avgLatency = packets ? data.reduce((a, b) => a + (b.flowDuration || 0), 0) / packets : 0;
   
   // Calculate a fake "AI Predicted" vs "Actual" for the demo if it's not strictly in the JSON
   const aiData = data.slice(-100).map((d, i) => ({
     id: i,
-    actual: d.flow_duration,
-    predicted: d.flow_duration * (0.95 + Math.random() * 0.1), // +/- 5% error
+    actual: d.flowDuration,
+    predicted: d.flowDuration * (0.95 + Math.random() * 0.1), // +/- 5% error
     confidence: 85 + Math.random() * 14
   }));
 
   const chartData = data.map((d, i) => ({
     index: i,
-    latency: d.flow_duration,
-    size: d.packet_size
+    latency: d.flowDuration,
+    size: d.packetSize
   })).slice(-200); // Last 200 for perf
 
   return (
