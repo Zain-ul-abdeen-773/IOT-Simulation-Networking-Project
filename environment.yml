@@ -1,0 +1,13 @@
+name: base
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    - scikit-learn
+    - m2cgen
+    - numpy
+    - pandas
+    - matplotlib
