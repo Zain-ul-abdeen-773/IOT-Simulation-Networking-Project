@@ -1099,48 +1099,50 @@
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[metrics.recordLatency( agent.flow_duration );
-    try {
-        // 0. GAN DDoS Simulation (5% chance to inject synthetic malicious data)
-        if (Math.random() < 0.05) {
-            agent.packet_size = 15000 + Math.random() * 5000;
-            agent.inter_arrival = Math.random() * 5;
-            agent.flow_duration = 150.0 + Math.random() * 50;
-        }
+    if (dashboard != null) {
+        try {
+            // 0. GAN DDoS Simulation (5% chance to inject synthetic malicious data)
+            if (Math.random() < 0.05) {
+                agent.packet_size = 15000 + Math.random() * 5000;
+                agent.inter_arrival = Math.random() * 5;
+                agent.flow_duration = 150.0 + Math.random() * 50;
+            }
 
-        // 0.5 RL Load Balancer (Tabular Q-Learning)
-        int simulatedQueue = (int)(agent.inter_arrival % 120); // proxy for queue
-        String state = QTableBalancer.getState(simulatedQueue);
-        double actionDelay = QTableBalancer.chooseAction(state);
-        agent.flow_duration = agent.flow_duration * actionDelay; // Apply RL action!
-        double reward = -agent.flow_duration; // Penalty for high latency
-        QTableBalancer.update(state, actionDelay, reward, QTableBalancer.getState(simulatedQueue + 1));
+            // 0.5 RL Load Balancer (Tabular Q-Learning)
+            int simulatedQueue = (int)(agent.inter_arrival % 120); // proxy for queue
+            String state = QTableBalancer.getState(simulatedQueue);
+            double actionDelay = QTableBalancer.chooseAction(state);
+            agent.flow_duration = agent.flow_duration * actionDelay; // Apply RL action!
+            double reward = -agent.flow_duration; // Penalty for high latency
+            QTableBalancer.update(state, actionDelay, reward, QTableBalancer.getState(simulatedQueue + 1));
 
-        // 1. Prepare features for AI Pipeline
-        double[] rfFeatures = new double[]{agent.packet_size, agent.inter_arrival};
-        double[] anomalyFeatures = new double[]{agent.packet_size, agent.inter_arrival, agent.flow_duration};
-        
-        // 2. Score offline models natively in Java!
-        double pred = OfflineAiPredictor.score(rfFeatures);
-        double anomalyScore = AnomalyModel.score(anomalyFeatures);
-        
-        // 3. Score Time-Series Forecaster
-        if (latDash != null && latDash.actualLatencies.size() >= 3) {
-            int s = latDash.actualLatencies.size();
-            double[] window = new double[]{
-                latDash.actualLatencies.get(s-3),
-                latDash.actualLatencies.get(s-2),
-                latDash.actualLatencies.get(s-1)
-            };
-            double futureLatency = FutureForecaster.score(window);
-            latDash.addForecast(futureLatency);
+            // 1. Prepare features for AI Pipeline
+            double[] rfFeatures = new double[]{agent.packet_size, agent.inter_arrival};
+            double[] anomalyFeatures = new double[]{agent.packet_size, agent.inter_arrival, agent.flow_duration};
+            
+            // 2. Score offline models natively in Java!
+            double pred = OfflineAiPredictor.score(rfFeatures);
+            double anomalyScore = AnomalyModel.score(anomalyFeatures);
+            
+            // 3. Score Time-Series Forecaster
+            if (latDash != null && latDash.actualLatencies.size() >= 3) {
+                int s = latDash.actualLatencies.size();
+                double[] window = new double[]{
+                    latDash.actualLatencies.get(s-3),
+                    latDash.actualLatencies.get(s-2),
+                    latDash.actualLatencies.get(s-1)
+                };
+                double futureLatency = FutureForecaster.score(window);
+                latDash.addForecast(futureLatency);
+            }
+            
+            // 4. Update Multi-Dashboard Ecosystem
+            if (latDash != null) latDash.addData(agent.flow_duration, pred);
+            if (secDash != null) secDash.addData(agent.flow_duration, agent.packet_size, anomalyScore);
+            if (telDash != null) telDash.addData(agent.flow_duration, pred, anomalyScore);
+        } catch (Throwable e) { 
+            dashboard.logError("RF Error: " + e.toString()); 
         }
-        
-        // 4. Update Multi-Dashboard Ecosystem
-        if (latDash != null) latDash.addData(agent.flow_duration, pred);
-        if (secDash != null) secDash.addData(agent.flow_duration, agent.packet_size, anomalyScore);
-        if (telDash != null) telDash.addData(agent.flow_duration, pred, anomalyScore);
-    } catch (Throwable e) { 
-        System.err.println("AI Ecosystem Error: " + e.toString()); 
     }
 ]]></Code>
 							</Value>
@@ -2156,8 +2158,8 @@
 	}
 }]]></Text>
 		</JavaClass>
-			
-			<JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
 			<Id>1777582939672</Id>
 			<Name><![CDATA[OfflineAiPredictor]]></Name>
 			<Text><![CDATA[public class OfflineAiPredictor {
@@ -21374,6 +21376,7 @@
     }
 }]]></Text>
 		</JavaClass>
+		<!--   =========   Java Class   ========  -->
 		<JavaClass>
 			<Id>1777582939675</Id>
 			<Name><![CDATA[AnomalyModel]]></Name>
@@ -21383,7 +21386,8 @@
     }
 }]]></Text>
 		</JavaClass>
-			<JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
 			<Id>1777583541875</Id>
 			<Name><![CDATA[FutureForecaster]]></Name>
 			<Text><![CDATA[public class FutureForecaster {
@@ -26588,7 +26592,8 @@
     }
 }]]></Text>
 		</JavaClass>
-			<JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
 			<Id>1777583705628</Id>
 			<Name><![CDATA[QTableBalancer]]></Name>
 			<Text><![CDATA[import java.util.HashMap;
