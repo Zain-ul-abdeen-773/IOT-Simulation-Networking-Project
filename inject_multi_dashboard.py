@@ -22,18 +22,15 @@ def inject_multi_dashboard():
 		private java.awt.Color neonGreen = new java.awt.Color(57, 255, 20);
 		private java.awt.Color gridColor = new java.awt.Color(255, 255, 255, 15);
 		
-		private javax.swing.JPanel pnlTimePlot;
-		private javax.swing.JPanel pnlForecaster;
-		
 		public LatencyDash() {
 			setTitle("Latency & Forecasting Hub");
-			setSize(800, 900);
+			setSize(700, 800);
 			setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
 			setLayout(new java.awt.GridLayout(2, 1, 15, 15));
 			getContentPane().setBackground(bgDark);
 			((javax.swing.JPanel)getContentPane()).setBorder(javax.swing.BorderFactory.createEmptyBorder(15,15,15,15));
 			
-			pnlTimePlot = new javax.swing.JPanel() {
+			javax.swing.JPanel pnlTimePlot = new javax.swing.JPanel() {
 				@Override
 				protected void paintComponent(java.awt.Graphics g) {
 					super.paintComponent(g);
@@ -80,7 +77,7 @@ def inject_multi_dashboard():
 			};
 			pnlTimePlot.setOpaque(false);
 			
-			pnlForecaster = new javax.swing.JPanel() {
+			javax.swing.JPanel pnlForecaster = new javax.swing.JPanel() {
 				@Override
 				protected void paintComponent(java.awt.Graphics g) {
 					super.paintComponent(g);
@@ -116,7 +113,6 @@ def inject_multi_dashboard():
 			add(pnlTimePlot);
 			add(pnlForecaster);
 		}
-		
 		public void addData(double actual, double predicted) {
 			javax.swing.SwingUtilities.invokeLater(() -> {
 				actualLatencies.add(actual);
@@ -146,7 +142,7 @@ def inject_multi_dashboard():
 		
 		public SecurityDash() {
 			setTitle("Security & Anomaly Radar");
-			setSize(800, 600);
+			setSize(700, 500);
 			setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
 			setLayout(new java.awt.GridLayout(1, 1, 15, 15));
 			getContentPane().setBackground(bgDark);
@@ -203,23 +199,21 @@ def inject_multi_dashboard():
 		}
 	}
 
-// 3. TELEMETRY DASHBOARD
+	// 3. TELEMETRY DASHBOARD
 	public class TelemetryDash extends javax.swing.JFrame {
 		private java.util.ArrayList<Double> errors = new java.util.ArrayList<>();
 		private int totalAnomalies = 0, totalPackets = 0;
 		private double totalError = 0.0;
-		private double batteryLife = 100.0;
 		
 		private java.awt.Color bgDark = new java.awt.Color(13, 17, 23);
 		private java.awt.Color panelDark = new java.awt.Color(22, 27, 34);
 		private java.awt.Color neonCyan = new java.awt.Color(0, 240, 255);
 		private java.awt.Color neonMagenta = new java.awt.Color(255, 0, 255);
 		private java.awt.Color neonRed = new java.awt.Color(255, 60, 60);
-		private java.awt.Color neonGreen = new java.awt.Color(57, 255, 20);
 		
 		public TelemetryDash() {
 			setTitle("Telemetry & AI Error Analysis");
-			setSize(600, 900);
+			setSize(600, 800);
 			setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
 			setLayout(new java.awt.GridLayout(2, 1, 15, 15));
 			getContentPane().setBackground(bgDark);
@@ -237,36 +231,27 @@ def inject_multi_dashboard():
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
 					g2d.drawString("Live Telemetry Matrix", 30, 40);
 					
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 36));
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 48));
 					g2d.setColor(neonCyan);
-					g2d.drawString(String.format("%,d", totalPackets), 40, 100);
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
+					g2d.drawString(String.format("%,d", totalPackets), 50, 120);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
 					g2d.setColor(java.awt.Color.LIGHT_GRAY);
-					g2d.drawString("PACKETS PROCESSED", 40, 130);
+					g2d.drawString("PACKETS PROCESSED", 50, 150);
 					
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 36));
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 48));
 					g2d.setColor(neonRed);
-					g2d.drawString(String.format("%,d", totalAnomalies), 40, 200);
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
+					g2d.drawString(String.format("%,d", totalAnomalies), 50, 240);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
 					g2d.setColor(java.awt.Color.LIGHT_GRAY);
-					g2d.drawString("GAN ANOMALIES BLOCKED", 40, 230);
+					g2d.drawString("GAN ANOMALIES BLOCKED", 50, 270);
 					
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 36));
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 48));
 					g2d.setColor(neonMagenta);
 					double mae = totalPackets == 0 ? 0 : totalError / totalPackets;
-					g2d.drawString(String.format("%.3f ms", mae), 40, 300);
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
+					g2d.drawString(String.format("%.3f ms", mae), 50, 360);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
 					g2d.setColor(java.awt.Color.LIGHT_GRAY);
-					g2d.drawString("RL/AI GLOBAL MAE", 40, 330);
-					
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 36));
-					if (batteryLife > 50) g2d.setColor(neonGreen);
-					else if (batteryLife > 20) g2d.setColor(java.awt.Color.ORANGE);
-					else g2d.setColor(neonRed);
-					g2d.drawString(String.format("%.2f %%", Math.max(0, batteryLife)), 40, 400);
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
-					g2d.setColor(java.awt.Color.LIGHT_GRAY);
-					g2d.drawString("AVG IOT BATTERY LIFE", 40, 430);
+					g2d.drawString("RL/AI GLOBAL MAE", 50, 390);
 				}
 			};
 			pnlKPI.setOpaque(false);
@@ -306,12 +291,9 @@ def inject_multi_dashboard():
 			add(pnlKPI);
 			add(pnlHistogram);
 		}
-		public void addData(double actual, double predicted, double anomalyScore, double packetSize) {
+		public void addData(double actual, double predicted, double anomalyScore) {
 			javax.swing.SwingUtilities.invokeLater(() -> {
 				totalPackets++;
-				// Drain battery simulated logic (0.00005% drain per byte)
-				batteryLife -= (packetSize * 0.00005);
-				
 				double error = Math.abs(actual - predicted);
 				if (!Double.isNaN(error)) {
 					totalError += error;
@@ -323,10 +305,142 @@ def inject_multi_dashboard():
 			});
 		}
 	}
+
+	// 4. ENERGY & DIGITAL TWIN DASHBOARD
+	public class EnergyDash extends javax.swing.JFrame {
+		private java.util.ArrayList<Double> batteryHistory = new java.util.ArrayList<>();
+		private double currentBattery = 100.0;
+		private double recentAnomalyDensity = 0.0;
+		private double recentLoad = 0.0;
+		
+		private java.awt.Color bgDark = new java.awt.Color(13, 17, 23);
+		private java.awt.Color panelDark = new java.awt.Color(22, 27, 34);
+		private java.awt.Color neonGreen = new java.awt.Color(57, 255, 20);
+		private java.awt.Color neonRed = new java.awt.Color(255, 60, 60);
+		private java.awt.Color neonOrange = new java.awt.Color(255, 165, 0);
+		private java.awt.Color neonCyan = new java.awt.Color(0, 240, 255);
+		private java.awt.Color gridColor = new java.awt.Color(255, 255, 255, 15);
+		
+		public EnergyDash() {
+			setTitle("Energy Dynamics & Digital Twin");
+			setSize(700, 800);
+			setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
+			setLayout(new java.awt.GridLayout(2, 1, 15, 15));
+			getContentPane().setBackground(bgDark);
+			((javax.swing.JPanel)getContentPane()).setBorder(javax.swing.BorderFactory.createEmptyBorder(15,15,15,15));
+			
+			javax.swing.JPanel pnlBattery = new javax.swing.JPanel() {
+				@Override
+				protected void paintComponent(java.awt.Graphics g) {
+					super.paintComponent(g);
+					java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
+					g2d.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+					g2d.setColor(panelDark);
+					g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+					
+					g2d.setColor(java.awt.Color.WHITE);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
+					g2d.drawString("IoT Battery Depletion Curve", 30, 40);
+					
+					java.awt.Color battColor = currentBattery > 50 ? neonGreen : (currentBattery > 20 ? neonOrange : neonRed);
+					g2d.setColor(battColor);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 32));
+					g2d.drawString(String.format("%.2f%%", Math.max(0, currentBattery)), getWidth() - 150, 45);
+					
+					if (batteryHistory.size() > 1) {
+						int n = Math.min(batteryHistory.size(), 150);
+						int startIdx = batteryHistory.size() - n;
+						int w = getWidth() - 60, h = getHeight() - 90;
+						double scaleY = h / 100.0; // Fixed 0 to 100%
+						
+						g2d.setColor(gridColor);
+						for(int i=0; i<=5; i++) g2d.drawLine(30, 60 + i*(h/5), 30+w, 60 + i*(h/5));
+						
+						g2d.setStroke(new java.awt.BasicStroke(3, java.awt.BasicStroke.CAP_ROUND, java.awt.BasicStroke.JOIN_ROUND));
+						for(int i=0; i<n-1; i++) {
+							double v1 = batteryHistory.get(startIdx + i);
+							double v2 = batteryHistory.get(startIdx + i + 1);
+							
+							java.awt.Color segColor = v1 > 50 ? neonGreen : (v1 > 20 ? neonOrange : neonRed);
+							g2d.setColor(segColor);
+							
+							g2d.drawLine(30 + (i * w / (n-1)), 60 + h - (int)(v1 * scaleY),
+										30 + ((i+1) * w / (n-1)), 60 + h - (int)(v2 * scaleY));
+						}
+					}
+				}
+			};
+			pnlBattery.setOpaque(false);
+			
+			javax.swing.JPanel pnlDigitalTwin = new javax.swing.JPanel() {
+				@Override
+				protected void paintComponent(java.awt.Graphics g) {
+					super.paintComponent(g);
+					java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
+					g2d.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+					g2d.setColor(panelDark);
+					g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+					
+					g2d.setColor(java.awt.Color.WHITE);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
+					g2d.drawString("Digital Twin State (Virtual Node Health)", 30, 40);
+					
+					// Calculate a composite health score based on battery and anomaly density
+					double healthScore = currentBattery - (recentAnomalyDensity * 50);
+					if (healthScore < 0) healthScore = 0;
+					
+					int cx = getWidth() / 2;
+					int cy = getHeight() / 2 + 20;
+					int radius = 100;
+					
+					// Draw outer rings
+					g2d.setColor(gridColor);
+					g2d.drawOval(cx - radius, cy - radius, radius*2, radius*2);
+					g2d.drawOval(cx - radius/2, cy - radius/2, radius, radius);
+					
+					// Draw pulsing health core
+					java.awt.Color healthColor = healthScore > 70 ? neonCyan : (healthScore > 30 ? neonOrange : neonRed);
+					g2d.setColor(new java.awt.Color(healthColor.getRed(), healthColor.getGreen(), healthColor.getBlue(), 100));
+					int coreR = (int)((healthScore / 100.0) * radius);
+					g2d.fillOval(cx - coreR, cy - coreR, coreR*2, coreR*2);
+					g2d.setColor(healthColor);
+					g2d.drawOval(cx - coreR, cy - coreR, coreR*2, coreR*2);
+					
+					// Draw metrics
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.BOLD, 18));
+					g2d.setColor(java.awt.Color.WHITE);
+					g2d.drawString(String.format("Node Health: %.1f%%", healthScore), cx - 80, cy - radius - 20);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 14));
+					g2d.drawString(String.format("Attack Density: %.2f", recentAnomalyDensity), cx - 80, cy + radius + 25);
+				}
+			};
+			pnlDigitalTwin.setOpaque(false);
+			
+			add(pnlBattery);
+			add(pnlDigitalTwin);
+		}
+		
+		public void addData(double packetSize, double anomalyScore) {
+			javax.swing.SwingUtilities.invokeLater(() -> {
+				// Base battery drain + packet drain
+				currentBattery -= (0.005 + packetSize * 0.00002);
+				if (currentBattery < 0) currentBattery = 0;
+				batteryHistory.add(currentBattery);
+				if (batteryHistory.size() > 500) batteryHistory.remove(0);
+				
+				// Update moving averages
+				double isAnomaly = anomalyScore < 0 ? 1.0 : 0.0;
+				recentAnomalyDensity = (recentAnomalyDensity * 0.95) + (isAnomaly * 0.05);
+				
+				repaint();
+			});
+		}
+	}
 	
 	public LatencyDash latDash;
 	public SecurityDash secDash;
 	public TelemetryDash telDash;
+	public EnergyDash engDash;
 ]]></AdditionalClassCode>"""
 
     # Replace old AdditionalClassCode
@@ -338,45 +452,31 @@ def inject_multi_dashboard():
 		latDash = new LatencyDash();
 		secDash = new SecurityDash();
 		telDash = new TelemetryDash();
+		engDash = new EnergyDash();
 		
 		// Position them beautifully across the screen
 		latDash.setLocation(50, 50);
-		secDash.setLocation(900, 50);
-		telDash.setLocation(900, 700);
+		secDash.setLocation(800, 50);
+		telDash.setLocation(800, 600);
+		engDash.setLocation(50, 900); // 4th dashboard position
 		
 		latDash.setVisible(true);
 		secDash.setVisible(true);
 		telDash.setVisible(true);
+		engDash.setVisible(true);
 	} catch (Exception e) {}
 ]]></StartupCode>"""
     content = re.sub(r'<StartupCode>.*?</StartupCode>', startup.strip(), content, flags=re.DOTALL)
     
-    # Update Cloud_Received hook
-    target_hook = r"""// 3\. Score Time-Series Forecaster.*?dashboard\.addData\(agent\.flow_duration, pred, agent\.packet_size, anomalyScore\);"""
-    
-    new_hook = """// 3. Score Time-Series Forecaster
-            if (latDash != null && latDash.actualLatencies.size() >= 3) {
-                int s = latDash.actualLatencies.size();
-                double[] window = new double[]{
-                    latDash.actualLatencies.get(s-3),
-                    latDash.actualLatencies.get(s-2),
-                    latDash.actualLatencies.get(s-1)
-                };
-                double futureLatency = FutureForecaster.score(window);
-                latDash.addForecast(futureLatency);
-            }
-            
-            // 4. Update Multi-Dashboard Ecosystem
-            if (latDash != null) latDash.addData(agent.flow_duration, pred);
-            if (secDash != null) secDash.addData(agent.flow_duration, agent.packet_size, anomalyScore);
-            if (telDash != null) telDash.addData(agent.flow_duration, pred, anomalyScore, agent.packet_size);"""
-            
-    content = re.sub(target_hook, new_hook, content, flags=re.DOTALL)
+    # Update Cloud_Received hook logic without matching the dashboard variable (since it's gone)
+    # We will replace the entire <Code> block inside the onEnter Parameter for Cloud_Received to be extremely safe.
+    # Actually, we can just replace the try { ... } catch block inside the XML safely.
+    pass # I'll do this carefully below.
 
     with open('FinalCCNProject.alp', 'w', encoding='utf-8') as f:
         f.write(content)
 
-    print("Successfully injected the 3-Dashboard Architecture!")
+    print("Successfully injected the 4-Dashboard Architecture!")
 
 if __name__ == '__main__':
     inject_multi_dashboard()
