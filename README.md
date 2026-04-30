@@ -37,7 +37,7 @@ graph TD
 
 The flow is clinical: packet telemetry is ingested by the **Cloud Processing Sink**, where it is immediately branched to four specialized AI kernels. The **Reinforcement Learning** agent applies immediate pressure to the network load, while the **Inference Engines** broadcast state to a decoupled, multi-threaded Java Swing dashboard system to prevent UI bottlenecks.
 
-## III. Core Mechanics (The Flex)
+## III. Core Mechanics 
 
 **Native AST Transpilation via m2cgen**
 The heaviest lifting occurs in the elimination of the Python-to-Java bottleneck. We do not call Python at runtime. Instead, we train high-dimensional **Random Forest** and **OneClassSVM** models in scikit-learn and mathematically transpile their Abstract Syntax Trees directly into **Native Java Bytecode**. This allows for bare-metal inference execution inside the AnyLogic simulation loop at a cost of less than 1ms per packet.
