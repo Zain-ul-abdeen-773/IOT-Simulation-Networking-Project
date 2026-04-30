@@ -203,17 +203,19 @@ def inject_multi_dashboard():
 		}
 	}
 
-	// 3. TELEMETRY DASHBOARD
+// 3. TELEMETRY DASHBOARD
 	public class TelemetryDash extends javax.swing.JFrame {
 		private java.util.ArrayList<Double> errors = new java.util.ArrayList<>();
 		private int totalAnomalies = 0, totalPackets = 0;
 		private double totalError = 0.0;
+		private double batteryLife = 100.0;
 		
 		private java.awt.Color bgDark = new java.awt.Color(13, 17, 23);
 		private java.awt.Color panelDark = new java.awt.Color(22, 27, 34);
 		private java.awt.Color neonCyan = new java.awt.Color(0, 240, 255);
 		private java.awt.Color neonMagenta = new java.awt.Color(255, 0, 255);
 		private java.awt.Color neonRed = new java.awt.Color(255, 60, 60);
+		private java.awt.Color neonGreen = new java.awt.Color(57, 255, 20);
 		
 		public TelemetryDash() {
 			setTitle("Telemetry & AI Error Analysis");
@@ -235,27 +237,36 @@ def inject_multi_dashboard():
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
 					g2d.drawString("Live Telemetry Matrix", 30, 40);
 					
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 48));
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 36));
 					g2d.setColor(neonCyan);
-					g2d.drawString(String.format("%,d", totalPackets), 50, 120);
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
+					g2d.drawString(String.format("%,d", totalPackets), 40, 100);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
 					g2d.setColor(java.awt.Color.LIGHT_GRAY);
-					g2d.drawString("PACKETS PROCESSED", 50, 150);
+					g2d.drawString("PACKETS PROCESSED", 40, 130);
 					
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 48));
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 36));
 					g2d.setColor(neonRed);
-					g2d.drawString(String.format("%,d", totalAnomalies), 50, 240);
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
+					g2d.drawString(String.format("%,d", totalAnomalies), 40, 200);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
 					g2d.setColor(java.awt.Color.LIGHT_GRAY);
-					g2d.drawString("GAN ANOMALIES BLOCKED", 50, 270);
+					g2d.drawString("GAN ANOMALIES BLOCKED", 40, 230);
 					
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 48));
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 36));
 					g2d.setColor(neonMagenta);
 					double mae = totalPackets == 0 ? 0 : totalError / totalPackets;
-					g2d.drawString(String.format("%.3f ms", mae), 50, 360);
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
+					g2d.drawString(String.format("%.3f ms", mae), 40, 300);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
 					g2d.setColor(java.awt.Color.LIGHT_GRAY);
-					g2d.drawString("RL/AI GLOBAL MAE", 50, 390);
+					g2d.drawString("RL/AI GLOBAL MAE", 40, 330);
+					
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 36));
+					if (batteryLife > 50) g2d.setColor(neonGreen);
+					else if (batteryLife > 20) g2d.setColor(java.awt.Color.ORANGE);
+					else g2d.setColor(neonRed);
+					g2d.drawString(String.format("%.2f %%", Math.max(0, batteryLife)), 40, 400);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
+					g2d.setColor(java.awt.Color.LIGHT_GRAY);
+					g2d.drawString("AVG IOT BATTERY LIFE", 40, 430);
 				}
 			};
 			pnlKPI.setOpaque(false);
@@ -295,9 +306,12 @@ def inject_multi_dashboard():
 			add(pnlKPI);
 			add(pnlHistogram);
 		}
-		public void addData(double actual, double predicted, double anomalyScore) {
+		public void addData(double actual, double predicted, double anomalyScore, double packetSize) {
 			javax.swing.SwingUtilities.invokeLater(() -> {
 				totalPackets++;
+				// Drain battery simulated logic (0.00005% drain per byte)
+				batteryLife -= (packetSize * 0.00005);
+				
 				double error = Math.abs(actual - predicted);
 				if (!Double.isNaN(error)) {
 					totalError += error;
@@ -355,7 +369,7 @@ def inject_multi_dashboard():
             // 4. Update Multi-Dashboard Ecosystem
             if (latDash != null) latDash.addData(agent.flow_duration, pred);
             if (secDash != null) secDash.addData(agent.flow_duration, agent.packet_size, anomalyScore);
-            if (telDash != null) telDash.addData(agent.flow_duration, pred, anomalyScore);"""
+            if (telDash != null) telDash.addData(agent.flow_duration, pred, anomalyScore, agent.packet_size);"""
             
     content = re.sub(target_hook, new_hook, content, flags=re.DOTALL)
 
