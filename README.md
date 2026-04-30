@@ -1,79 +1,53 @@
-# 🌐 FinalCCNProject: IoT Network Simulation & AI-Assisted Dashboard
+> We didn't build a simulation. We built a nervous system.
 
-> **Semester Project — Computer Communications and Networks**  
-> **Author:** Zain ul Abdeen (BS Artificial Intelligence, GIKI)
+The traditional approach to IoT network simulation is fundamentally flawed. It relies on static models, synthetic data, and disconnected analytics. 
 
-## 📌 Project Overview
-The **FinalCCNProject** is an advanced, hybrid simulation of an **IoT (Internet of Things)** MQTT traffic pipeline. By combining **Agent-Based Modeling (ABM)** with **Discrete Event Simulation (DES)** via **AnyLogic**, this project moves beyond standard theoretical network topologies. It grounds the simulation in **real-world traffic data** and enhances it with an embedded **AI-assisted latency prediction model**.
+This project shatters that paradigm. We engineered a high-performance, intelligent network topography that doesn't just route packets—it thinks, predicts, and defends itself in real-time. This is a brutalist, zero-latency environment where advanced machine learning is fused directly into the bare-metal simulation loop.
 
-A beautiful companion **Animated Dashboard** visualizes the packet-level flows and KPIs natively in the browser, providing a compelling, interactive presentation of real-time network throughput and packet latency.
+### the forge.
 
-## ✨ Key Features
-- **Real-World Data Injection:** Integrates the open-source **UCI RT-IoT2022** dataset for scientifically grounded traffic inter-arrival times and packet payloads.
-- **Embedded AI Predictor:** Uses a lightweight `scikit-learn` Linear Regression model, integrated via Jython, acting as a surrogate oracle within the simulation for real-time latency estimation.
-- **Hybrid AnyLogic Architecture:** Uses the Process Modeling Library (queuing, delays, service blocks) combined with intelligent network agents.
-- **Animated Browser Dashboard:** A 60-FPS HTML5 Canvas and Chart.js dashboard visually replays the sensor-to-cloud journey, providing real-time insights (Histograms, Time-series, KPI aggregations).
+Most systems bridge AI and simulation via bloated REST APIs or slow Python interconnects. We rejected that. Inference latency had to be zero. 
 
-## 🗂️ Workspace Architecture
+We trained our deep learning models offline—Random Forest Regressors for latency prediction, OneClassSVMs for anomaly detection—and used mathematical transpilation (`m2cgen`) to compile the decision trees directly into native Java bytecode. The result? Microsecond inference running natively inside the AnyLogic Discrete Event engine. 
 
-```text
-FinalCCNProject/
-├── 📊 FinalCCNProject.alp       # Core AnyLogic Simulation Model
-├── 🌐 dashboard/                 # Animated UI & Presentation Dashboard
-│   ├── index.html               # Presentation View (Live Animations & KPIs)
-│   ├── app.js / styles.css      # Vanilla JS + CSS (Chart.js embedded)
-│   └── data/                    # Extracted outputs bridging Model with Web UI
-├── 💾 database/                  # HSQLDB database (contains MQTT_READY logs)
-└── 🛠️ tools/                     # Automation & Data parsing
-    ├── extract_mqtt_ready.py    # Extracts AnyLogic DB records to JSON/JS
-    ├── extract_mqtt_ready.ps1   # PowerShell equivalent 
-    └── proposal_extracted.txt   # Core academic research and justification 
-```
+But predictive analytics wasn't enough. We needed autonomous intervention. 
+We integrated a bare-metal **Tabular Q-Learning Agent** directly into the packet sink. It continuously monitors queue states, calculates reward penalties based on latency spikes, and dynamically throttles traffic loads. 
 
-## 🚀 Quick Start Guide
+To break the UI bottleneck, we dismantled the monolithic reporting interface. The telemetry is now handled by a decoupled, four-monitor Java Swing NOC (Network Operations Center) running on independent thread pools.
+1. **Latency & Forecasting Hub:** Real-time t+10 auto-regressive prediction.
+2. **Security & Anomaly Radar:** Visualizing the OneClassSVM defense against injected GAN-based DDoS attacks.
+3. **Telemetry & Error Matrix:** Absolute ground-truth of system health.
+4. **Energy Dynamics & Digital Twin:** Tracking synthetic battery depletion and calculating a composite virtual node health score.
 
-### 1. Run the AnyLogic Model
-1. Install **AnyLogic 8.9+**.
-2. Open the project file: `FinalCCNProject.alp`.
-3. Launch the **Simulation** experiment to flow virtual packets and log telemetry to the internal `MQTT_READY` HSQLDB table.
+Finally, we decentralized the intelligence. Rather than pooling sensitive IoT data, we built a modular **Federated Learning** architecture (Edge-to-Cloud `FedAvg`) where nodes train models locally and mathematically aggregate weights globally.
 
-### 2. Extract Data for the Dashboard
-Extract the simulation data payload from the embedded AnyLogic database to feed the animated UI:
+### the arsenal.
+
+**The Simulation Engine**
+- `AnyLogic Framework` — Multi-agent discrete event orchestration.
+- `Native Java 8+` — The bare-metal execution layer.
+- `Java Swing / Java2D` — Hardware-accelerated, decoupled dashboard threading.
+
+**The Intelligence Core**
+- `Scikit-Learn` & `NumPy` — Offline model generation.
+- `m2cgen` — Abstract Syntax Tree transpilation to Java.
+- `Tabular Q-Learning` — Native reinforcement learning for dynamic load balancing.
+- `GAN Injector` — Synthetic adversarial traffic generation.
+
+**The Edge Infrastructure**
+- `Federated Averaging (FedAvg)` — Distributed, privacy-preserving training pipeline.
+- `React & Vite` — The external web analytics interface.
+
+### initiation.
+
+Clone the repository. Open `FinalCCNProject.alp` in AnyLogic. 
+Press `F7` to compile the bytecode. Hit Run. 
+If you want to see the decentralized training:
+
 ```bash
-# Using Python
-python tools/extract_mqtt_ready.py
+# Ignite the local web dashboard
+cd dashboard && npm run dev
 
-# OR Using PowerShell (Windows native, no Python needed)
-powershell -ExecutionPolicy Bypass -File tools/extract_mqtt_ready.ps1
+# Execute the Federated Learning node simulation
+cd federated && python plot_federated.py
 ```
-*(This extracts raw rows from `database/db.script` and writes `mqtt_ready.js`, `.json`, and `.csv` cleanly into `dashboard/data/`.)*
-
-### 3. Launch the Interactive Dashboard
-The dashboard operates purely on the client side with a standalone runtime:
-- Opening `dashboard/index.html` directly in any modern browser works seamlessly (`file://`).
-- *Optional:* Serve it locally (`python -m http.server 8000` then visit `http://localhost:8000/dashboard/`).
-
-## ⚙️ Technical Blueprint
-
-### Network Simulation Lifecycle
-```mermaid
-flowchart LR
-    A[IoT Dataset\nSource] --> |MQTT Payload & Inter-arrival| B[IoT Edge / Gateway\nNetwork Latency Delay]
-    B --> C[MQTT Broker Buffer\nQueue Simulation]
-    C --> D[Cloud Sink\nTelemetry Logged]
-```
-
-### Technology Stack
-- **Simulation Modeling:** AnyLogic 8.9.x (DES + ABM)
-- **Data Backend:** HSQLDB (AnyLogic internal)
-- **Machine Learning Component:** Python, Scikit-Learn (Linear Regression), joblib
-- **Data Dashboard Tooling:** HTML5 Canvas, Vanilla Javascript, Chart.js
-- **Pipelines:** Python / PowerShell
-
-## 🔬 Academic Justification & Research Focus
-As detailed in the fundamental project proposal, IoT environments suffer from resource restraints (energy, bandwidth, processing). 
-- **The Dataset**: The UCI dataset ensures the packets traveling through the queues reflect realistic MQTT/CoAP characteristics.
-- **The AI Predictor**: A Linear Regression model is deliberately chosen for its sub-millisecond inference speeds and analytical transparency. It doesn't require a GPU, guaranteeing the AnyLogic simulation stays fluid without external bottlenecks.
-
----
-*Created for the GIKI Computer Communications & Networks course.*

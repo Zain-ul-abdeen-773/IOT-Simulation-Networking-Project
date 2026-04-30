@@ -1269,7 +1269,7 @@
         // 4. Update Multi-Dashboard Ecosystem
         if (latDash != null) latDash.addData(agent.flow_duration, pred);
         if (secDash != null) secDash.addData(agent.flow_duration, agent.packet_size, anomalyScore);
-        if (telDash != null) telDash.addData(agent.flow_duration, pred, anomalyScore);
+        if (telDash != null) telDash.addData(agent.flow_duration, pred, anomalyScore, agent.packet_size);
         if (engDash != null) engDash.addData(agent.packet_size, anomalyScore);
     } catch (Throwable e) { 
         System.err.println("AI Ecosystem Error: " + e.toString()); 
@@ -2288,8 +2288,8 @@
 	}
 }]]></Text>
 		</JavaClass>
-			
-			<JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
 			<Id>1777582939672</Id>
 			<Name><![CDATA[OfflineAiPredictor]]></Name>
 			<Text><![CDATA[public class OfflineAiPredictor {
@@ -21506,6 +21506,7 @@
     }
 }]]></Text>
 		</JavaClass>
+		<!--   =========   Java Class   ========  -->
 		<JavaClass>
 			<Id>1777582939675</Id>
 			<Name><![CDATA[AnomalyModel]]></Name>
@@ -21515,7 +21516,8 @@
     }
 }]]></Text>
 		</JavaClass>
-			<JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
 			<Id>1777583541875</Id>
 			<Name><![CDATA[FutureForecaster]]></Name>
 			<Text><![CDATA[public class FutureForecaster {
@@ -26720,7 +26722,8 @@
     }
 }]]></Text>
 		</JavaClass>
-			<JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
 			<Id>1777583705628</Id>
 			<Name><![CDATA[QTableBalancer]]></Name>
 			<Text><![CDATA[import java.util.HashMap;
