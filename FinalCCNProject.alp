@@ -18,6 +18,152 @@
 		<ActiveObjectClass>
 			<Id>1777130072102</Id>
 			<Name><![CDATA[Main]]></Name>
+			<AdditionalClassCode><![CDATA[
+	public class HeavyDashboard extends javax.swing.JFrame {
+		private java.util.ArrayList<Double> actualLatencies = new java.util.ArrayList<>();
+		private java.util.ArrayList<Double> predictedLatencies = new java.util.ArrayList<>();
+		private String lastError = "";
+		
+		private javax.swing.JPanel panel = new javax.swing.JPanel() {
+			@Override
+			protected void paintComponent(java.awt.Graphics g) {
+				try {
+					super.paintComponent(g);
+					java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
+					g2d.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+					
+					// Draw background
+					g2d.setColor(new java.awt.Color(11, 22, 48));
+					g2d.fillRect(0, 0, getWidth(), getHeight());
+					
+					// Draw title
+					g2d.setColor(java.awt.Color.WHITE);
+					g2d.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 28));
+					g2d.drawString("AI Network Analytics Engine (Swing)", 30, 50);
+					
+					g2d.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 16));
+					g2d.setColor(java.awt.Color.LIGHT_GRAY);
+					g2d.drawString("Live Packets Processed: " + actualLatencies.size(), 30, 80);
+					
+					if (!lastError.isEmpty()) {
+						g2d.setColor(java.awt.Color.RED);
+						g2d.drawString("Error: " + lastError, 30, 100);
+					}
+					
+					// Draw Grid
+					g2d.setColor(new java.awt.Color(255, 255, 255, 30));
+					for(int i=0; i<10; i++) {
+						g2d.drawLine(30, 120 + i*40, 800, 120 + i*40);
+					}
+					
+					// Draw Chart Data
+					if (actualLatencies.size() > 1) {
+						int n = Math.min(actualLatencies.size(), 100);
+						int startIdx = actualLatencies.size() - n;
+						
+						// Auto-scale
+						double maxVal = 0.001;
+						for(int i=0; i<n; i++) {
+							double v1 = actualLatencies.get(startIdx + i);
+							double v2 = predictedLatencies.get(startIdx + i);
+							if (!Double.isNaN(v1) && v1 > maxVal) maxVal = v1;
+							if (!Double.isNaN(v2) && v2 > maxVal) maxVal = v2;
+						}
+						double scaleY = 380.0 / maxVal;
+						
+						// Actual Latency Line (Cyan)
+						g2d.setColor(new java.awt.Color(34, 211, 238));
+						g2d.setStroke(new java.awt.BasicStroke(3));
+						for(int i=0; i<n-1; i++) {
+							double v1 = actualLatencies.get(startIdx + i);
+							double v2 = actualLatencies.get(startIdx + i + 1);
+							if(Double.isNaN(v1) || Double.isNaN(v2)) continue;
+							
+							int x1 = 30 + (i * 770 / 100);
+							int y1 = 500 - (int)(v1 * scaleY);
+							int x2 = 30 + ((i+1) * 770 / 100);
+							int y2 = 500 - (int)(v2 * scaleY);
+							g2d.drawLine(x1, Math.max(120, y1), x2, Math.max(120, y2));
+						}
+						
+						// Predicted Latency Line (Purple)
+						g2d.setColor(new java.awt.Color(124, 92, 255));
+						for(int i=0; i<n-1; i++) {
+							double v1 = predictedLatencies.get(startIdx + i);
+							double v2 = predictedLatencies.get(startIdx + i + 1);
+							if(Double.isNaN(v1) || Double.isNaN(v2)) continue;
+							
+							int x1 = 30 + (i * 770 / 100);
+							int y1 = 500 - (int)(v1 * scaleY);
+							int x2 = 30 + ((i+1) * 770 / 100);
+							int y2 = 500 - (int)(v2 * scaleY);
+							g2d.drawLine(x1, Math.max(120, y1), x2, Math.max(120, y2));
+						}
+						
+						// Draw max scale value
+						g2d.setColor(java.awt.Color.GRAY);
+						g2d.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12));
+						g2d.drawString(String.format("Max Y: %.3fs", maxVal), 30, 115);
+					}
+					
+					// Draw Legend
+					g2d.setColor(new java.awt.Color(34, 211, 238));
+					g2d.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 16));
+					g2d.drawString("— Actual Latency", 30, 540);
+					g2d.setColor(new java.awt.Color(124, 92, 255));
+					g2d.drawString("— AI Predicted", 250, 540);
+				} catch (Exception e) {
+					lastError = "Paint Exception: " + e.getMessage();
+				}
+			}
+		};
+		
+		public HeavyDashboard() {
+			setTitle("AI Analytics Dashboard (Swing Pop-out)");
+			setSize(850, 600);
+			setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
+			add(panel);
+		}
+		
+		public void addData(double actual, double predicted) {
+			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						actualLatencies.add(actual);
+						predictedLatencies.add(predicted);
+						if(actualLatencies.size() > 500) {
+							actualLatencies.remove(0);
+							predictedLatencies.remove(0);
+						}
+						panel.repaint();
+					} catch (Exception e) {
+						lastError = "AddData Exception: " + e.getMessage();
+					}
+				}
+			});
+		}
+		
+		public void logError(String err) {
+			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					lastError = err;
+					panel.repaint();
+				}
+			});
+		}
+	}
+	
+	public HeavyDashboard dashboard;
+]]></AdditionalClassCode>
+			<StartupCode><![CDATA[
+	// Initialize and show custom Swing UI Dashboard
+	try {
+		dashboard = new HeavyDashboard();
+		dashboard.setVisible(true);
+	} catch (Exception e) {
+		System.out.println("Error creating dashboard: " + e.getMessage());
+	}
+]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1777130072107</Id>
@@ -112,7 +258,7 @@
 				<Variable Class="PlainVariable">
 					<Id>1777132073572</Id>
 					<Name><![CDATA[metrics]]></Name>
-					<X>140</X><Y>140</Y>
+					<X>60</X><Y>120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -127,13 +273,13 @@
 				<Variable Class="PlainVariable">
 					<Id>1779000000100</Id>
 					<Name><![CDATA[aiPredictor]]></Name>
-					<X>140</X><Y>180</Y>
+					<X>240</X><Y>120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[LatencyPredictorLR]]></Type>
+						<Type><![CDATA[LatencyPredictorLR]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[new LatencyPredictorLR(4, 600)]]></Code>
 						</InitialValue>
@@ -142,13 +288,13 @@
 				<Variable Class="PlainVariable">
 					<Id>1779000000101</Id>
 					<Name><![CDATA[deviceCount]]></Name>
-					<X>140</X><Y>220</Y>
-					<Label><X>10</X><Y>0</Y></Label>
+					<X>410</X><Y>120</Y>
+					<Label><X>15</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
+						<Type><![CDATA[int]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[20]]></Code>
 						</InitialValue>
@@ -159,7 +305,7 @@
 				<Connector>
 					<Id>1777130860419</Id>
 					<Name><![CDATA[connector]]></Name>
-					<X>150</X><Y>260</Y>
+					<X>180</X><Y>280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -186,13 +332,13 @@
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-40</X><Y>0</Y></Point>
+						<Point><X>-110</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
 					<Id>1777130893032</Id>
 					<Name><![CDATA[connector1]]></Name>
-					<X>220</X><Y>270</Y>
+					<X>320</X><Y>280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -219,13 +365,13 @@
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-30</X><Y>-10</Y></Point>
+						<Point><X>-100</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
 					<Id>1777130913646</Id>
 					<Name><![CDATA[connector2]]></Name>
-					<X>290</X><Y>300</Y>
+					<X>490</X><Y>280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -252,7 +398,7 @@
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-30</X><Y>-30</Y></Point>
+						<Point><X>-130</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 			</Connectors>
@@ -282,7 +428,7 @@
 				<EmbeddedObject>
 					<Id>1777130456146</Id>
 					<Name><![CDATA[source]]></Name>
-					<X>80</X><Y>250</Y>
+					<X>40</X><Y>270</Y>
 					<Label><X>-5</X><Y>-25</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -567,7 +713,7 @@
 				<EmbeddedObject>
 					<Id>1777130858184</Id>
 					<Name><![CDATA[MQTT_Buffer]]></Name>
-					<X>150</X><Y>240</Y>
+					<X>180</X><Y>260</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -664,7 +810,7 @@
 				<EmbeddedObject>
 					<Id>1777130891594</Id>
 					<Name><![CDATA[Network_Latency]]></Name>
-					<X>220</X><Y>250</Y>
+					<X>320</X><Y>260</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -750,7 +896,7 @@
 				<EmbeddedObject>
 					<Id>1777130911995</Id>
 					<Name><![CDATA[Cloud_Received]]></Name>
-					<X>290</X><Y>290</Y>
+					<X>490</X><Y>270</Y>
 					<Label><X>-10</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -770,7 +916,26 @@
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[metrics.recordLatency( agent.flow_duration );]]></Code>
+								<Code><![CDATA[metrics.recordLatency( agent.flow_duration );
+    if (dashboard != null) {
+        try {
+            double pred = 0.0;
+            if (aiPredictor != null) {
+                pred = aiPredictor.predict(new double[]{agent.packet_size, 0, 0, 0});
+            }
+            dashboard.addData(agent.flow_duration, pred);
+        } catch (Throwable e) { 
+            dashboard.logError(e.toString()); 
+        }
+    }
+
+    if (dashboard != null) {
+        try {
+            double pred = aiPredictor.predict(new double[]{agent.packet_size, 0, 0, 0});
+            dashboard.addData(agent.flow_duration, pred);
+        } catch (Exception e) {}
+    }
+]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -1446,6 +1611,8 @@
 		<Logging>false</Logging>
 		<AutoExport>false</AutoExport>
 		<ShutdownCompact>false</ShutdownCompact>
+		<ImportSettings>
+		</ImportSettings>
 		<ExportSettings>
 		</ExportSettings>
 	</Database>
@@ -1783,8 +1950,6 @@
 }]]></Text>
 		</JavaClass>
 	</JavaClasses>
-	<ModelResources>
-	</ModelResources>
     <RequiredLibraryReference>
 		<LibraryName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></LibraryName>
 		<VersionMajor>1</VersionMajor>
