@@ -1047,43 +1047,17 @@
 								<Code><![CDATA[metrics.recordLatency( agent.flow_duration );
     if (dashboard != null) {
         try {
-            double[] features = new double[]{agent.packet_size, 0, 0, 0};
+            // 1. Prepare features for Pre-Trained Random Forest Model
+            double[] rfFeatures = new double[]{agent.packet_size, agent.inter_arrival};
             
-            // 1. Train AI Predictor online!
-            if (aiPredictor != null) {
-                aiPredictor.addTrainingSample(features, agent.flow_duration);
-            }
-            
-            // 2. Make Prediction
-            double pred = 0.0;
-            if (aiPredictor != null) {
-                pred = aiPredictor.predict(features);
-            }
+            // 2. Score offline Random Forest model natively in Java!
+            double pred = OfflineAiPredictor.score(rfFeatures);
             
             // 3. Update Multi-Graph Dashboard
             dashboard.addData(agent.flow_duration, pred, agent.packet_size);
         } catch (Throwable e) { 
-            dashboard.logError(e.toString()); 
+            dashboard.logError("RF Error: " + e.toString()); 
         }
-    }
-
-    if (dashboard != null) {
-        try {
-            double pred = 0.0;
-            if (aiPredictor != null) {
-                pred = aiPredictor.predict(new double[]{agent.packet_size, 0, 0, 0});
-            }
-            dashboard.addData(agent.flow_duration, pred);
-        } catch (Throwable e) { 
-            dashboard.logError(e.toString()); 
-        }
-    }
-
-    if (dashboard != null) {
-        try {
-            double pred = aiPredictor.predict(new double[]{agent.packet_size, 0, 0, 0});
-            dashboard.addData(agent.flow_duration, pred);
-        } catch (Exception e) {}
     }
 ]]></Code>
 							</Value>
