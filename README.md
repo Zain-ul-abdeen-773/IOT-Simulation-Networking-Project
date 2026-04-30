@@ -652,4 +652,8 @@ Ghulam Ishaq Khan Institute of Engineering Sciences and Technology (GIKI)
 
 **Aegis-IoT © 2026 — GIKI, BS Artificial Intelligence**
 
+<<<<<<< HEAD
 </div>
+=======
+</div>
+>>>>>>> 74dec84059f55cf451c188a8655c8b3068271b4f

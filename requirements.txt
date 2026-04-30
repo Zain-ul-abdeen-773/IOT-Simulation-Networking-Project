@@ -1,0 +1,8 @@
+# Aegis-IoT Python Dependencies
+# These are required for ML training, injection scripts, and federated learning components.
+
+scikit-learn
+m2cgen
+numpy
+pandas
+matplotlib
