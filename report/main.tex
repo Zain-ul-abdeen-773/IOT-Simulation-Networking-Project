@@ -1,0 +1,196 @@
+\documentclass[12pt,a4paper]{report}
+
+% ============ PACKAGES ============
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{tcolorbox}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, shadows, decorations.markings}
+
+% ============ COLORS ============
+\definecolor{neonCyan}{RGB}{0,240,255}
+\definecolor{neonMagenta}{RGB}{255,0,255}
+\definecolor{neonGreen}{RGB}{57,255,20}
+\definecolor{darkBg}{RGB}{13,17,23}
+\definecolor{panelBg}{RGB}{22,27,34}
+\definecolor{codeGray}{RGB}{30,30,30}
+\definecolor{accentBlue}{RGB}{88,166,255}
+\definecolor{accentPurple}{RGB}{124,92,255}
+
+% ============ LISTINGS STYLE ============
+\lstdefinestyle{code}{
+    backgroundcolor=\color{codeGray},
+    basicstyle=\ttfamily\footnotesize\color{white},
+    keywordstyle=\color{neonCyan}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{neonMagenta},
+    numberstyle=\tiny\color{gray},
+    numbers=left,
+    numbersep=8pt,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray!30},
+    tabsize=4,
+    showstringspaces=false,
+}
+\lstset{style=code}
+
+% ============ HEADER/FOOTER ============
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{gray}{Aegis-IoT: Neural Network Intelligence Platform}}
+\fancyhead[R]{\small\textcolor{gray}{Computer Networks --- Final Project}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ============ CHAPTER STYLING ============
+\titleformat{\chapter}[display]
+  {\normalfont\Huge\bfseries\color{accentBlue}}
+  {\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{30pt}
+
+% ============ HYPERREF ============
+\hypersetup{
+    colorlinks=true,
+    linkcolor=accentBlue,
+    citecolor=accentPurple,
+    urlcolor=neonCyan,
+}
+
+\onehalfspacing
+
+% ==============================================
+%                  DOCUMENT
+% ==============================================
+\begin{document}
+
+% ============ TITLE PAGE ============
+\begin{titlepage}
+\begin{tikzpicture}[remember picture, overlay]
+    % Background
+    \fill[darkBg] (current page.south west) rectangle (current page.north east);
+    
+    % Grid pattern
+    \foreach \i in {0,0.5,...,30} {
+        \draw[white, opacity=0.03] (current page.south west) ++(\i cm, 0) -- ++(0,30cm);
+        \draw[white, opacity=0.03] (current page.south west) ++(0, \i cm) -- ++(21cm,0);
+    }
+    
+    % Glowing accent lines
+    \draw[neonCyan, line width=2pt, opacity=0.6] 
+        ([xshift=2cm, yshift=-4cm]current page.north west) -- ++(17cm, 0);
+    \draw[neonMagenta, line width=1pt, opacity=0.4] 
+        ([xshift=2cm, yshift=-4.3cm]current page.north west) -- ++(12cm, 0);
+    
+    % System status badge
+    \node[fill=panelBg, rounded corners=5pt, inner sep=8pt, 
+          draw=neonCyan, draw opacity=0.5, line width=0.5pt] 
+        at ([xshift=5cm, yshift=-2.5cm]current page.north west) 
+        {\texttt{\footnotesize\color{neonGreen}// [SYSTEM\_STATUS]: ACTIVE}};
+    
+    % Main Title
+    \node[anchor=west, text=white] at ([xshift=2cm, yshift=-7cm]current page.north west) 
+        {\fontsize{42}{50}\selectfont\bfseries Aegis-IoT};
+    \node[anchor=west, text=white, opacity=0.7] at ([xshift=2cm, yshift=-9cm]current page.north west) 
+        {\fontsize{20}{24}\selectfont Neural Network Intelligence Platform};
+    \node[anchor=west, text=neonCyan, opacity=0.8] at ([xshift=2cm, yshift=-10.2cm]current page.north west) 
+        {\fontsize{12}{14}\selectfont IoT Simulation $\cdot$ Federated Learning $\cdot$ Reinforcement Learning};
+    
+    % Accent line below title
+    \draw[accentPurple, line width=1.5pt, opacity=0.5] 
+        ([xshift=2cm, yshift=-11cm]current page.north west) -- ++(8cm, 0);
+    
+    % Project details
+    \node[anchor=west, text=white, opacity=0.6] at ([xshift=2cm, yshift=-13.5cm]current page.north west) {
+        \begin{minipage}{14cm}
+        \large\textbf{Course:} Computer Networks --- Final Project Report \\[6pt]
+        \large\textbf{Student:} Zain-ul-Abdeen \\[6pt]
+        \large\textbf{Platform:} AnyLogic 8.9.7 $\vert$ Java 8+ $\vert$ Python 3.x $\vert$ React/Vite \\[6pt]
+        \large\textbf{Date:} May 2026
+        \end{minipage}
+    };
+    
+    % Bottom tech stack bar
+    \node[fill=panelBg, rounded corners=8pt, inner sep=12pt, minimum width=17cm,
+          draw=white, draw opacity=0.1, line width=0.5pt]
+        at ([yshift=3cm]current page.south) {
+        \footnotesize\color{white!60}
+        \texttt{AnyLogic} \color{neonCyan}$\bullet$\color{white!60}
+        \texttt{~Scikit-Learn} \color{neonCyan}$\bullet$\color{white!60}
+        \texttt{~m2cgen} \color{neonCyan}$\bullet$\color{white!60}
+        \texttt{~Q-Learning} \color{neonCyan}$\bullet$\color{white!60}
+        \texttt{~FedAvg} \color{neonCyan}$\bullet$\color{white!60}
+        \texttt{~OneClassSVM} \color{neonCyan}$\bullet$\color{white!60}
+        \texttt{~React/Vite} \color{neonCyan}$\bullet$\color{white!60}
+        \texttt{~Java2D}
+    };
+    
+    % Version tag
+    \node[anchor=east, text=white, opacity=0.3] at ([xshift=-2cm, yshift=1.5cm]current page.south east) 
+        {\texttt{\small v2.0.0 // PRODUCTION}};
+\end{tikzpicture}
+\end{titlepage}
+
+% ============ TABLE OF CONTENTS ============
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+\newpage
+
+% ============ CHAPTERS ============
+\input{chapters/ch1_introduction}
+\input{chapters/ch2_literature}
+\input{chapters/ch3_architecture}
+\input{chapters/ch4_ml_pipeline}
+\input{chapters/ch5_rl_federated}
+\input{chapters/ch6_visualization}
+\input{chapters/ch7_web_dashboard}
+\input{chapters/ch8_injection_engine}
+\input{chapters/ch9_results}
+\input{chapters/ch10_conclusion}
+
+% ============ BIBLIOGRAPHY ============
+\begin{thebibliography}{99}
+\bibitem{rt-iot} Sharmila, B.S. ``RT-IoT2022 Dataset.'' UCI Machine Learning Repository, 2023.
+\bibitem{mqtt} OASIS Standard, ``MQTT Version 5.0,'' 2019.
+\bibitem{anylogic} The AnyLogic Company, ``AnyLogic 8 Help,'' 2024.
+\bibitem{m2cgen} Bayramov, B. ``m2cgen: Model 2 Code Generator,'' GitHub, 2023.
+\bibitem{fedavg} McMahan, H.B., et al. ``Communication-Efficient Learning of Deep Networks from Decentralized Data,'' AISTATS, 2017.
+\bibitem{qlearning} Watkins, C.J.C.H., Dayan, P. ``Q-learning,'' Machine Learning, 8(3), pp.279--292, 1992.
+\bibitem{ocsvm} Scholkopf, B., et al. ``Estimating the Support of a High-Dimensional Distribution,'' Neural Computation, 2001.
+\bibitem{rf} Breiman, L. ``Random Forests,'' Machine Learning, 45(1), pp.5--32, 2001.
+\bibitem{gan} Goodfellow, I., et al. ``Generative Adversarial Nets,'' NeurIPS, 2014.
+\bibitem{sklearn} Pedregosa, F., et al. ``Scikit-learn: Machine Learning in Python,'' JMLR, 12, pp.2825--2830, 2011.
+\bibitem{react} Meta Platforms, ``React: A JavaScript Library for User Interfaces,'' 2024.
+\bibitem{vite} Evan You, ``Vite: Next Generation Frontend Tooling,'' 2024.
+\bibitem{digitaltwin} Grieves, M. ``Digital Twin: Manufacturing Excellence through Virtual Factory Replication,'' 2014.
+\bibitem{ddos} Zargar, S.T., et al. ``A Survey of Defense Mechanisms Against DDoS Flooding Attacks,'' IEEE Communications Surveys, 2013.
+\bibitem{recharts} ``Recharts: Composable Charting Library,'' GitHub, 2024.
+\end{thebibliography}
+
+\end{document}

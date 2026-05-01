@@ -1,0 +1,166 @@
+% ============================================================
+%  CHAPTER 3 — SYSTEM ARCHITECTURE
+% ============================================================
+\chapter{System Architecture}
+
+\section{High-Level Architecture}
+
+The Aegis-IoT platform is organized into five distinct architectural layers, each responsible for a specific domain of functionality. Figure~\ref{fig:arch} illustrates the complete system topology.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1.2cm and 2cm,
+    layer/.style={rectangle, rounded corners=8pt, draw=#1, fill=#1!10, text=black, minimum width=4cm, minimum height=1cm, font=\small\bfseries, line width=1.2pt},
+    comp/.style={rectangle, rounded corners=5pt, draw=gray!60, fill=white, text=black, minimum width=3cm, minimum height=0.8cm, font=\footnotesize},
+    arrow/.style={-{Stealth[length=3mm]}, thick, gray!70},
+    darrow/.style={-{Stealth[length=3mm]}, thick, dashed, gray!50},
+]
+    % Layer 1: Data Acquisition
+    \node[layer=blue!60] (L1) {Data Acquisition Layer};
+    \node[comp, below left=0.8cm and 0.5cm of L1] (sensor) {SensorDevice Agents};
+    \node[comp, below=0.8cm of L1] (mqtt) {MQTT Packets};
+    \node[comp, below right=0.8cm and 0.5cm of L1] (gw) {Gateway Nodes};
+    
+    % Layer 2: Intelligence Core
+    \node[layer=purple!60, below=3cm of L1] (L2) {Intelligence Core (JVM)};
+    \node[comp, below left=0.8cm and 1.5cm of L2] (rf) {Random Forest};
+    \node[comp, below left=0.8cm and -0.5cm of L2] (svm) {OneClassSVM};
+    \node[comp, below right=0.8cm and -0.5cm of L2] (ts) {Forecaster};
+    \node[comp, below right=0.8cm and 1.5cm of L2] (rl) {Q-Learning};
+    
+    % Layer 3: Visualization
+    \node[layer=teal!60, below=3cm of L2] (L3) {Visualization Layer};
+    \node[comp, below left=0.8cm and 1cm of L3] (d1) {Latency Hub};
+    \node[comp, below left=0.8cm and -1cm of L3] (d2) {Security Radar};
+    \node[comp, below right=0.8cm and -1cm of L3] (d3) {Telemetry};
+    \node[comp, below right=0.8cm and 1cm of L3] (d4) {Energy/Twin};
+    
+    % Arrows
+    \draw[arrow] (sensor) -- (mqtt);
+    \draw[arrow] (mqtt) -- (gw);
+    \draw[arrow] (gw) -- (L2);
+    \draw[arrow] (L2) -- (rf);
+    \draw[arrow] (L2) -- (svm);
+    \draw[arrow] (L2) -- (ts);
+    \draw[arrow] (L2) -- (rl);
+    \draw[darrow] (rl.south) -- ++(0,-0.5) -| (gw);
+    \draw[arrow] (L2) -- (L3);
+\end{tikzpicture}
+\caption{Aegis-IoT System Architecture: Five-layer topology from data acquisition through intelligence processing to visualization.}
+\label{fig:arch}
+\end{figure}
+
+\section{The Simulation Layer}
+
+\subsection{AnyLogic Agent-Based Model}
+
+The core simulation engine utilizes AnyLogic 8.9.7's agent-based discrete-event modeling framework. The simulation consists of three primary agent types:
+
+\begin{table}[H]
+\centering
+\caption{AnyLogic Agent Types}
+\label{tab:agents}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Agent} & \textbf{Role} & \textbf{Count} \\
+\midrule
+\texttt{SensorDevice} & Generates MQTT telemetry packets with randomized network metrics. Models IoT sensor arrays. & Multiple \\
+\texttt{MQTTPacket} & Carries \texttt{NetworkMetrics} payload (packet size, inter-arrival time, flow duration) through the network. & Dynamic \\
+\texttt{Main} & Orchestrates the simulation, hosts the Cloud Processing Sink, and manages all AI inference kernels. & 1 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{MQTTPacket Data Structure}
+
+Each \texttt{MQTTPacket} agent carries the following fields, derived from the RT-IoT2022 dataset:
+
+\begin{table}[H]
+\centering
+\caption{MQTTPacket Network Metrics}
+\label{tab:mqttfields}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Description} \\
+\midrule
+\texttt{packet\_size} & \texttt{double} & Size of the MQTT payload in bytes. Mean: 7.71 bytes for normal traffic. \\
+\texttt{inter\_arrival} & \texttt{double} & Time between consecutive packet arrivals in microseconds. \\
+\texttt{flow\_duration} & \texttt{double} & Total duration of the network flow in milliseconds. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Network Flow}
+
+The packet traversal sequence follows a strict three-tier IoT architecture:
+
+\begin{enumerate}
+    \item \textbf{Generation:} \texttt{SensorDevice} agents produce \texttt{MQTTPacket} entities at rates determined by the inter-arrival time distribution from the dataset.
+    \item \textbf{Routing:} Packets enter an \texttt{MQTT\_Buffer} queue at the gateway level, where capacity has been expanded to 1,000,000 to prevent buffer overflow during high-load simulations.
+    \item \textbf{Processing:} The \texttt{Cloud\_Received} sink intercepts each packet and executes the full AI inference pipeline before destroying the entity.
+\end{enumerate}
+
+\section{The Cloud\_Received Processing Hook}
+
+The \texttt{Cloud\_Received} sink's \texttt{onEnter} callback is the heart of the Aegis-IoT intelligence system. When a packet arrives at the cloud sink, the following sequence executes:
+
+\begin{algorithm}[H]
+\caption{Cloud\_Received OnEnter Processing Pipeline}
+\label{alg:cloud}
+\begin{algorithmic}[1]
+\State \textbf{Record} latency: \texttt{metrics.recordLatency(agent.flow\_duration)}
+\State \textbf{GAN Injection:} With probability $p=0.05$, mutate packet fields to simulate DDoS
+\State \textbf{RL Decision:} Compute queue state $\rightarrow$ select action $\rightarrow$ apply delay multiplier
+\State \textbf{Update Q-Table:} Compute reward $r = -\text{flow\_duration}$ and update Q-values
+\State \textbf{Prepare features:} $\mathbf{x}_{rf} = [\text{packet\_size}, \text{inter\_arrival}]$
+\State \textbf{Prepare features:} $\mathbf{x}_{svm} = [\text{packet\_size}, \text{inter\_arrival}, \text{flow\_duration}]$
+\State \textbf{Latency prediction:} $\hat{y} = \texttt{OfflineAiPredictor.score}(\mathbf{x}_{rf})$
+\State \textbf{Anomaly scoring:} $s = \texttt{AnomalyModel.score}(\mathbf{x}_{svm})$
+\State \textbf{Forecasting:} If history $\geq 3$, predict $\hat{y}_{t+10} = \texttt{FutureForecaster.score}(\text{window})$
+\State \textbf{Broadcast} to all four NOC dashboards
+\end{algorithmic}
+\end{algorithm}
+
+\section{Dataset: RT-IoT2022}
+
+The RT-IoT2022 dataset \cite{rt-iot} from the UCI Machine Learning Repository provides real-world MQTT network traffic flows collected from IoT testbed environments. Our preprocessing pipeline extracts and cleans 4,132 flow records with the following statistics:
+
+\begin{table}[H]
+\centering
+\caption{Dataset Statistics (clean\_mqtt\_traffic.csv)}
+\label{tab:dataset}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Feature} & \textbf{Mean} & \textbf{Std Dev} & \textbf{Min} & \textbf{Max} \\
+\midrule
+packetSize & 7.71 & 2.14 & 3.43 & 15.00 \\
+interArrival & 2,462,430 & 845,212 & 1,024 & 4,921,000 \\
+flowDuration & 32.01 & 10.98 & 0.13 & 64.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Directory Structure}
+
+The project repository is organized into the following directories:
+
+\begin{table}[H]
+\centering
+\caption{Project Directory Structure}
+\label{tab:dirs}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Directory} & \textbf{Contents} \\
+\midrule
+\texttt{/} & Root: \texttt{FinalCCNProject.alp} (AnyLogic project), \texttt{README.md} \\
+\texttt{/model} & ML training scripts, dataset CSV, transpiled Java models \\
+\texttt{/java\_classes} & Standalone Java classes: \texttt{QTableBalancer.java}, \texttt{OfflineAiPredictor.java} \\
+\texttt{/federated} & Federated Learning pipeline: edge nodes, cloud aggregator, plotting \\
+\texttt{/injection\_scripts} & Python mutation scripts for AnyLogic XML patching \\
+\texttt{/dashboard} & React/Vite web frontend for cross-platform analytics \\
+\texttt{/tools} & Utility scripts: \texttt{patch\_alp.py} for delay/capacity tuning \\
+\texttt{/database} & HSQLDB persistence layer for simulation state \\
+\bottomrule
+\end{tabularx}
+\end{table}

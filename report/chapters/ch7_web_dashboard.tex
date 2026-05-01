@@ -1,0 +1,102 @@
+% ============================================================
+%  CHAPTER 7 — WEB DASHBOARD
+% ============================================================
+\chapter{Web Analytics Dashboard}
+
+\section{Technology Stack}
+
+The web dashboard is a modern single-page application (SPA) built with:
+
+\begin{table}[H]
+\centering
+\caption{Web Dashboard Technology Stack}
+\label{tab:webstack}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Technology} & \textbf{Role} \\
+\midrule
+React 18 & Component-based UI framework for declarative rendering \\
+Vite 6.x & Next-generation build tool with Hot Module Replacement (HMR) \\
+Tailwind CSS & Utility-first CSS framework for rapid styling \\
+Recharts & Composable charting library for React (AreaChart, ScatterChart) \\
+Framer Motion & Animation library for smooth micro-interactions \\
+Lucide React & Icon library for clean, consistent iconography \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Data Ingestion}
+
+The dashboard consumes the simulation's telemetry export via a static JSON file:
+
+\begin{lstlisting}[language=JavaScript, caption={Data Fetching Logic (App.jsx)}]
+useEffect(() => {
+    fetch('/data/mqtt_ready.json')
+      .then(res => res.json())
+      .then(json => {
+        // JSON envelope: { generatedAt, rowCount, rows }
+        const rows = json.rows || json;
+        setData(rows);
+        setLoading(false);
+      });
+}, []);
+\end{lstlisting}
+
+The JSON envelope contains metadata (\texttt{generatedAt}, \texttt{rowCount}) and the complete array of 4,132 packet records with camelCase field names (\texttt{flowDuration}, \texttt{packetSize}, \texttt{interArrival}).
+
+\section{UI Components}
+
+\subsection{Header and Navigation}
+
+The header displays the platform name, a live ``Neural Network Subsystem Active'' indicator with a pulsing green dot, and the current AI model status badge (``VotingRegressor: ONLINE'').
+
+\subsection{KPI Metric Cards}
+
+Four metric cards display aggregate statistics:
+\begin{itemize}
+    \item \textbf{Total Packets:} 4,132 (from dataset)
+    \item \textbf{Average Latency:} Computed as $\bar{y} = \frac{1}{n}\sum_{i} \text{flowDuration}_i$
+    \item \textbf{AI Confidence:} 94.2\% (simulated from prediction accuracy)
+    \item \textbf{Network Load:} Status indicator based on throughput
+\end{itemize}
+
+\subsection{Network Topology Animation}
+
+A custom animated topology visualization renders the three-tier IoT architecture:
+\begin{enumerate}
+    \item \textbf{IoT Sensor Array} — Green node with Activity icon
+    \item \textbf{Edge Gateway} — Purple node with Server icon
+    \item \textbf{Cloud ML Engine} — Blue node with CPU icon
+\end{enumerate}
+
+Animated particles (using Framer Motion) flow between nodes to represent live packet transmission, creating a visually engaging representation of the network topology.
+
+\subsection{AI Inference Engine Chart}
+
+An AreaChart from Recharts displays the last 100 packets comparing actual latency (cyan gradient fill) against AI-predicted latency (purple dashed line with gradient fill). Prediction error is simulated as $\hat{y} = y \times (0.95 + \mathcal{U}(0, 0.1))$.
+
+\subsection{Distribution Charts}
+
+Two bottom-panel charts provide additional analytics:
+\begin{itemize}
+    \item \textbf{Latency Distribution:} Step-type AreaChart showing the temporal evolution of flow duration values over the last 200 packets.
+    \item \textbf{Packet Size vs.\ Latency:} ScatterChart mapping the correlation between packet size and observed latency, enabling visual identification of outlier clusters.
+\end{itemize}
+
+\section{Design System}
+
+The dashboard uses a dark, glassmorphic design system with the following CSS custom properties:
+
+\begin{lstlisting}[language=CSS, caption={Design System Variables}]
+:root {
+    --bg: #050a18;
+    --surface: rgba(15, 23, 55, 0.6);
+    --accent: #7c5cff;
+    --accent2: #22d3ee;
+    --good: #34d399;
+    --warn: #fbbf24;
+    --danger: #f87171;
+}
+\end{lstlisting}
+
+Glass cards use \texttt{backdrop-filter: blur(16px)} with subtle border highlights, creating a frosted-glass effect that provides depth without sacrificing readability.
