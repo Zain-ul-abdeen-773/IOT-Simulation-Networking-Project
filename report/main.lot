@@ -1,0 +1,28 @@
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {1.1}{\ignorespaces Summary of Technical Contributions}}{8}{table.caption.1}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces AnyLogic Agent Types}}{15}{table.caption.3}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces MQTTPacket Network Metrics}}{15}{table.caption.4}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Dataset Statistics (clean\_mqtt\_traffic.csv)}}{16}{table.caption.5}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Project Directory Structure}}{16}{table.caption.6}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Random Forest Hyperparameters}}{18}{table.caption.7}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Q-Learning State-Action Space}}{24}{table.caption.8}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces NOC Dashboard Windows}}{29}{table.caption.9}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Dashboard Screen Positions}}{32}{table.caption.10}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {7.1}{\ignorespaces Web Dashboard Technology Stack}}{33}{table.caption.11}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {8.1}{\ignorespaces Injection Scripts}}{37}{table.caption.12}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {9.1}{\ignorespaces Random Forest Latency Prediction Results}}{40}{table.caption.13}%
+\contentsline {table}{\numberline {9.2}{\ignorespaces OneClassSVM Performance}}{41}{table.caption.14}%
+\contentsline {table}{\numberline {9.3}{\ignorespaces Time-Series Forecasting Results}}{41}{table.caption.15}%
+\contentsline {table}{\numberline {9.4}{\ignorespaces Converged Q-Table Policy (Representative)}}{41}{table.caption.16}%
+\contentsline {table}{\numberline {9.5}{\ignorespaces FedAvg Convergence Over 10 Rounds}}{42}{table.caption.17}%
+\contentsline {table}{\numberline {9.6}{\ignorespaces GAN DDoS Detection Performance}}{42}{table.caption.18}%
+\contentsline {table}{\numberline {9.7}{\ignorespaces System Performance Benchmarks}}{43}{table.caption.19}%
+\addvspace {10\p@ }

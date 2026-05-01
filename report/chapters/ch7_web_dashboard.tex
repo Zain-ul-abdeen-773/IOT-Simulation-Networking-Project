@@ -29,7 +29,7 @@ Lucide React & Icon library for clean, consistent iconography \\
 
 The dashboard consumes the simulation's telemetry export via a static JSON file:
 
-\begin{lstlisting}[language=JavaScript, caption={Data Fetching Logic (App.jsx)}]
+\begin{lstlisting}[caption={Data Fetching Logic (App.jsx)}]
 useEffect(() => {
     fetch('/data/mqtt_ready.json')
       .then(res => res.json())
@@ -87,7 +87,7 @@ Two bottom-panel charts provide additional analytics:
 
 The dashboard uses a dark, glassmorphic design system with the following CSS custom properties:
 
-\begin{lstlisting}[language=CSS, caption={Design System Variables}]
+\begin{lstlisting}[caption={Design System Variables}]
 :root {
     --bg: #050a18;
     --surface: rgba(15, 23, 55, 0.6);
