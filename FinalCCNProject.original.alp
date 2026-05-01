@@ -2280,8 +2280,8 @@
 	}
 }]]></Text>
 		</JavaClass>
-		<!--   =========   Java Class   ========  -->
-		<JavaClass>
+			
+			<JavaClass>
 			<Id>1777582939672</Id>
 			<Name><![CDATA[OfflineAiPredictor]]></Name>
 			<Text><![CDATA[public class OfflineAiPredictor {
@@ -21498,7 +21498,6 @@
     }
 }]]></Text>
 		</JavaClass>
-		<!--   =========   Java Class   ========  -->
 		<JavaClass>
 			<Id>1777582939675</Id>
 			<Name><![CDATA[AnomalyModel]]></Name>
@@ -21508,8 +21507,7 @@
     }
 }]]></Text>
 		</JavaClass>
-		<!--   =========   Java Class   ========  -->
-		<JavaClass>
+			<JavaClass>
 			<Id>1777583541875</Id>
 			<Name><![CDATA[FutureForecaster]]></Name>
 			<Text><![CDATA[public class FutureForecaster {
@@ -26714,8 +26712,7 @@
     }
 }]]></Text>
 		</JavaClass>
-		<!--   =========   Java Class   ========  -->
-		<JavaClass>
+			<JavaClass>
 			<Id>1777583705628</Id>
 			<Name><![CDATA[QTableBalancer]]></Name>
 			<Text><![CDATA[import java.util.HashMap;
