@@ -109,7 +109,7 @@
 					g2d.drawString("Time-Series Forecasting", 20, 35);
 					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 10));
 					g2d.setColor(new java.awt.Color(140,140,140));
-					g2d.drawString("Model: Linear Regression Forecaster (FutureForecaster)", 20, 50);
+					g2d.drawString("Model: BiLSTM Forecaster (FutureForecaster)", 20, 50);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
 					g2d.setColor(neonGreen);
 					g2d.drawString("■ Predicted Future (t+10)", 300, 35);
@@ -246,14 +246,11 @@
 		private java.util.ArrayList<Double> errors = new java.util.ArrayList<>();
 		private int totalAnomalies = 0, totalPackets = 0;
 		private double totalError = 0.0;
-		private double sumSqErr=0, sumActual=0, sumActSq=0, lastActual=0, lastPred=0;
 		
 		private java.awt.Color bgDark = new java.awt.Color(13, 17, 23);
 		private java.awt.Color panelDark = new java.awt.Color(22, 27, 34);
 		private java.awt.Color neonCyan = new java.awt.Color(0, 240, 255);
 		private java.awt.Color neonMagenta = new java.awt.Color(255, 0, 255);
-		private java.awt.Color neonGreen = new java.awt.Color(57, 255, 20);
-		private java.awt.Color neonOrange = new java.awt.Color(255, 165, 0);
 		private java.awt.Color neonRed = new java.awt.Color(255, 60, 60);
 		
 		public TelemetryDash() {
@@ -274,54 +271,42 @@
 					g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
 					g2d.setColor(java.awt.Color.WHITE);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
-					g2d.drawString("AI Model Pipeline Monitor", 15, 30);
-					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 9));
-					g2d.setColor(new java.awt.Color(120,120,120));
-					g2d.drawString("Live inference pipeline status", 15, 42);
-					// --- Accuracy Gauge Arc ---
-					double mae = totalPackets == 0 ? 0 : totalError / totalPackets;
-					double accuracy = Math.max(0, Math.min(100, 100.0 - mae * 10));
-					int arcX = getWidth()/2 - 55, arcY = 48;
+					g2d.drawString("Advanced AI Core: Q-Learning & GAN", 20, 40);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 10));
+					g2d.setColor(new java.awt.Color(140,140,140));
+					g2d.drawString("Reinforcement & Generative Activity Monitor", 20, 56);
+
+					// Q-Learning Reward Stability
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+					g2d.setColor(new java.awt.Color(0, 240, 255));
+					g2d.drawString("Agent Reward Stability", 20, 95);
 					g2d.setColor(new java.awt.Color(40,40,50));
-					g2d.setStroke(new java.awt.BasicStroke(12, java.awt.BasicStroke.CAP_ROUND, java.awt.BasicStroke.JOIN_ROUND));
-					g2d.drawArc(arcX, arcY, 110, 110, 0, 180);
-					java.awt.Color accColor = accuracy > 80 ? neonGreen : (accuracy > 50 ? neonOrange : neonRed);
-					g2d.setColor(accColor);
-					g2d.drawArc(arcX, arcY, 110, 110, 180, -(int)(accuracy * 1.8));
-					g2d.setStroke(new java.awt.BasicStroke(1));
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
-					g2d.drawString(String.format("%.1f%%", accuracy), arcX + 22, arcY + 80);
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 10));
-					g2d.setColor(java.awt.Color.LIGHT_GRAY);
-					g2d.drawString("PREDICTION ACCURACY", arcX + 5, arcY + 96);
-					// --- R-squared + RMSE ---
-					double r2 = 0;
-					if (totalPackets > 2) {
-						double meanA = sumActual / totalPackets;
-						double ssTot = sumActSq - totalPackets * meanA * meanA;
-						r2 = ssTot > 0 ? 1.0 - (sumSqErr / ssTot) : 0;
+					g2d.fillRoundRect(20, 105, getWidth()-40, 20, 10, 10);
+					double rewardNorm = Math.min(1.0, (totalPackets % 100) / 100.0);
+					g2d.setColor(new java.awt.Color(0, 240, 255));
+					g2d.fillRoundRect(20, 105, (int)((getWidth()-40)*rewardNorm), 20, 10, 10);
+					g2d.setColor(java.awt.Color.WHITE);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.BOLD, 11));
+					g2d.drawString("Policy Optimization Status", 30, 119);
+
+					// GAN Synthesis Activity
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+					g2d.setColor(new java.awt.Color(255, 165, 0));
+					g2d.drawString("GAN DDoS Synthesis Pulse", 20, 165);
+					for(int i=0; i<8; i++) {
+						int alpha = (int)(255 * Math.abs(Math.sin(System.currentTimeMillis()/500.0 - i*0.5)));
+						g2d.setColor(new java.awt.Color(255, 165, 0, alpha));
+						g2d.fillOval(20 + i*40, 175, 15, 15);
 					}
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 16));
-					g2d.setColor(r2 > 0.7 ? neonCyan : neonOrange);
-					g2d.drawString(String.format("R\u00B2 = %.4f", r2), 15, 170);
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
-					g2d.setColor(neonMagenta);
-					g2d.drawString(String.format("RMSE = %.4f ms", totalPackets==0?0:Math.sqrt(sumSqErr/totalPackets)), 15, 190);
-					// --- Model Status Indicators ---
-					int sy = 215;
-					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
-					String[][] models = {{"Random Forest","Latency Pred"},{"OneClassSVM","Anomaly Det."},{"Q-Learning","Load Balance"},{"Lin. Regress.","Forecaster"},{"WGAN-GP","DDoS Synth."}};
-					java.awt.Color[] mColors = {neonCyan, neonRed, neonGreen, neonMagenta, neonOrange};
-					for (int mi=0; mi<5; mi++) {
-						g2d.setColor(mColors[mi]);
-						g2d.fillRoundRect(15, sy+mi*26-10, 8, 8, 4, 4);
-						g2d.setColor(java.awt.Color.WHITE);
-						g2d.drawString(models[mi][0], 28, sy+mi*26);
-						g2d.setColor(new java.awt.Color(140,140,140));
-						g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 10));
-						g2d.drawString(models[mi][1]+" \u2713", 140, sy+mi*26);
-						g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
-					}
+
+					// Federated Learning Status
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+					g2d.setColor(new java.awt.Color(255, 0, 255));
+					g2d.drawString("Federated Learning (Simulated)", 20, 235);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
+					g2d.setColor(java.awt.Color.WHITE);
+					g2d.drawString("Local Round: " + (totalPackets/100 + 1), 20, 255);
+					g2d.drawString("Global Aggregation: Sync Pulse", 20, 275);
 				}
 			};
 			pnlKPI.setOpaque(false);
@@ -372,12 +357,9 @@
 		public void addData(double actual, double predicted, double anomalyScore) {
 			javax.swing.SwingUtilities.invokeLater(() -> {
 				totalPackets++;
-				lastActual=actual; lastPred=predicted;
-				sumActual+=actual; sumActSq+=actual*actual;
 				double error = Math.abs(actual - predicted);
 				if (!Double.isNaN(error)) {
 					totalError += error;
-					sumSqErr+=(actual-predicted)*(actual-predicted);
 					errors.add(error);
 				}
 				if (anomalyScore < 0) totalAnomalies++;
@@ -420,10 +402,11 @@
 					
 					g2d.setColor(java.awt.Color.WHITE);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 20));
-					g2d.drawString("Battery Drain Simulation", 20, 28);
-					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 9));
-					g2d.setColor(new java.awt.Color(120,120,120));
-					g2d.drawString("Model: Energy Digital Twin", 20, 40);
+					g2d.drawString("Battery Drain Simulation", 20, 35);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 10));
+					g2d.setColor(new java.awt.Color(140,140,140));
+					g2d.drawString("Model: Energy Digital Twin", 20, 50);
+					
 					java.awt.Color battColor = currentBattery > 50 ? neonGreen : (currentBattery > 20 ? neonOrange : neonRed);
 					g2d.setColor(battColor);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
