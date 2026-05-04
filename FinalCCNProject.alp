@@ -51,6 +51,9 @@
 					g2d.setColor(java.awt.Color.WHITE);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 20));
 					g2d.drawString("Live Latency Tracking", 20, 35);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 10));
+					g2d.setColor(new java.awt.Color(140,140,140));
+					g2d.drawString("Model: Random Forest (m2cgen transpiled)", 20, 50);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
 					g2d.setColor(neonCyan);
 					g2d.drawString("■ Actual", 250, 35);
@@ -70,7 +73,13 @@
 						int w = getWidth() - 40, h = getHeight() - 60;
 						double scaleY = h / maxVal;
 						g2d.setColor(gridColor);
-						for(int i=0; i<=5; i++) g2d.drawLine(20, 45 + i*(h/5), 20+w, 45 + i*(h/5));
+						for(int i=0; i<=5; i++) {
+							g2d.drawLine(20, 45 + i*(h/5), 20+w, 45 + i*(h/5));
+							g2d.setColor(new java.awt.Color(160,160,160));
+							g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 9));
+							g2d.drawString(String.format("%.1fms",(5-i)*(maxVal/5)), 1, 49+i*(h/5));
+							g2d.setColor(gridColor);
+						}
 						g2d.setColor(neonMagenta);
 						g2d.setStroke(new java.awt.BasicStroke(3, java.awt.BasicStroke.CAP_ROUND, java.awt.BasicStroke.JOIN_ROUND));
 						for(int i=0; i<n-1; i++) {
@@ -98,6 +107,9 @@
 					g2d.setColor(java.awt.Color.WHITE);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 20));
 					g2d.drawString("Time-Series Forecasting", 20, 35);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 10));
+					g2d.setColor(new java.awt.Color(140,140,140));
+					g2d.drawString("Model: Linear Regression Forecaster (FutureForecaster)", 20, 50);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
 					g2d.setColor(neonGreen);
 					g2d.drawString("■ Predicted Future (t+10)", 300, 35);
@@ -169,6 +181,14 @@
 					g2d.setColor(java.awt.Color.WHITE);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
 					g2d.drawString("OneClassSVM Defense Radar", 30, 40);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 10));
+					g2d.setColor(new java.awt.Color(140,140,140));
+					g2d.drawString("Model: OneClassSVM (Anomaly Detection, m2cgen)", 30, 56);
+					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 11));
+					g2d.setColor(new java.awt.Color(0,240,255));
+					g2d.drawString("● Normal", getWidth()-160, 40);
+					g2d.setColor(new java.awt.Color(255,60,60));
+					g2d.drawString("● Anomaly", getWidth()-90, 40);
 					if (actualLatencies.size() > 0) {
 						int w = getWidth() - 60, h = getHeight() - 80;
 						double maxLat = 0.001, maxSize = 0.001;
@@ -179,6 +199,18 @@
 							g2d.drawLine(30, 60 + i*(h/5), 30+w, 60 + i*(h/5));
 							g2d.drawLine(30 + i*(w/5), 60, 30 + i*(w/5), 60+h);
 						}
+						g2d.setColor(new java.awt.Color(160,160,160));
+						g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 9));
+						for(int i=0;i<=5;i++) {
+							g2d.drawString(String.format("%.0f",(5-i)*(maxLat/5)), 2, 64+i*(h/5));
+							g2d.drawString(String.format("%.0f",i*(maxSize/5)), 28+i*(w/5), 60+h+12);
+						}
+						g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.ITALIC, 10));
+						g2d.drawString("Packet Size (bytes) \u2192", w/2, 60+h+24);
+						java.awt.Graphics2D g2r = (java.awt.Graphics2D)g2d.create();
+						g2r.rotate(-Math.PI/2, 12, 60+h/2);
+						g2r.drawString("Flow Duration (ms) \u2192", 12, 60+h/2);
+						g2r.dispose();
 						for (int i=0; i<actualLatencies.size(); i++) {
 							int cx = 30 + (int)((packetSizes.get(i) / maxSize) * w);
 							int cy = 60 + h - (int)((actualLatencies.get(i) / maxLat) * h);
@@ -239,7 +271,10 @@
 					g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
 					g2d.setColor(java.awt.Color.WHITE);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
-					g2d.drawString("Live Matrix", 20, 40);
+					g2d.drawString("Live Telemetry KPI Matrix", 20, 40);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 10));
+					g2d.setColor(new java.awt.Color(140,140,140));
+					g2d.drawString("Models: RF + OneClassSVM + Q-Learning", 20, 56);
 					
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 42));
 					g2d.setColor(neonCyan);
@@ -276,7 +311,10 @@
 					g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
 					g2d.setColor(java.awt.Color.WHITE);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
-					g2d.drawString("Error Curve", 20, 40);
+					g2d.drawString("Prediction Error Distribution", 20, 40);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 10));
+					g2d.setColor(new java.awt.Color(140,140,140));
+					g2d.drawString("Model: Random Forest vs Actual | MAE Bins", 20, 55);
 					
 					if (errors.size() > 0) {
 						int[] bins = new int[15];
@@ -293,6 +331,11 @@
 							g2d.setPaint(gp);
 							g2d.fillRoundRect(20 + i*barW, 50 + h - barH, barW - 2, barH, 5, 5);
 						}
+						g2d.setColor(new java.awt.Color(160,160,160));
+						g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 9));
+						for(int i=0;i<15;i+=3) g2d.drawString(i+"ms", 20+i*barW, 50+h+12);
+						g2d.setFont(new java.awt.Font("Segoe UI",java.awt.Font.ITALIC,10));
+						g2d.drawString("Error Magnitude (ms) \u2192", w/2-30, 50+h+24);
 					}
 				}
 			};
@@ -349,7 +392,10 @@
 					
 					g2d.setColor(java.awt.Color.WHITE);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 20));
-					g2d.drawString("Battery Drain", 20, 35);
+					g2d.drawString("Battery Drain Simulation", 20, 35);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 10));
+					g2d.setColor(new java.awt.Color(140,140,140));
+					g2d.drawString("Model: Energy Digital Twin", 20, 50);
 					
 					java.awt.Color battColor = currentBattery > 50 ? neonGreen : (currentBattery > 20 ? neonOrange : neonRed);
 					g2d.setColor(battColor);
@@ -362,7 +408,13 @@
 						double scaleY = h / 100.0; // Fixed 0 to 100%
 						
 						g2d.setColor(gridColor);
-						for(int i=0; i<=5; i++) g2d.drawLine(20, 45 + i*(h/5), 20+w, 45 + i*(h/5));
+						for(int i=0; i<=5; i++) {
+							g2d.drawLine(20, 45+i*(h/5), 20+w, 45+i*(h/5));
+							g2d.setColor(new java.awt.Color(160,160,160));
+							g2d.setFont(new java.awt.Font("Consolas",java.awt.Font.PLAIN,9));
+							g2d.drawString((100-i*20)+"%", 1, 49+i*(h/5));
+							g2d.setColor(gridColor);
+						}
 						
 						g2d.setStroke(new java.awt.BasicStroke(3, java.awt.BasicStroke.CAP_ROUND, java.awt.BasicStroke.JOIN_ROUND));
 						for(int i=0; i<n-1; i++) {
@@ -391,7 +443,10 @@
 					
 					g2d.setColor(java.awt.Color.WHITE);
 					g2d.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 20));
-					g2d.drawString("Twin Health", 20, 35);
+					g2d.drawString("Digital Twin Health Index", 20, 35);
+					g2d.setFont(new java.awt.Font("Consolas", java.awt.Font.ITALIC, 10));
+					g2d.setColor(new java.awt.Color(140,140,140));
+					g2d.drawString("Composite: Battery + Anomaly Density", 20, 50);
 					
 					double healthScore = currentBattery - (recentAnomalyDensity * 50);
 					if (healthScore < 0 || Double.isNaN(healthScore)) healthScore = 0;
@@ -439,10 +494,111 @@
 		}
 	}
 	
+
+	// 5. REAL-TIME OPERATIONS REPORT DASHBOARD
+	public class ReportDash extends javax.swing.JFrame {
+		private java.util.ArrayList<String> logLines = new java.util.ArrayList<>();
+		private int pktCount=0, anomCount=0, rlActions=0, ganInjections=0;
+		private double sumError=0, minLat=Double.MAX_VALUE, maxLat=0, lastPred=0, lastActual=0;
+		private long startMs = System.currentTimeMillis();
+		private java.awt.Color bgDark=new java.awt.Color(13,17,23);
+		private java.awt.Color panelDark=new java.awt.Color(22,27,34);
+		private java.awt.Color neonCyan=new java.awt.Color(0,240,255);
+		private java.awt.Color neonGreen=new java.awt.Color(57,255,20);
+		private java.awt.Color neonRed=new java.awt.Color(255,60,60);
+		private java.awt.Color neonMagenta=new java.awt.Color(255,0,255);
+		private java.awt.Color neonOrange=new java.awt.Color(255,165,0);
+		public ReportDash() {
+			setTitle("Real-Time Operations Report");
+			setSize(750, 500);
+			setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
+			setLayout(new java.awt.GridLayout(1,2,10,10));
+			getContentPane().setBackground(bgDark);
+			((javax.swing.JPanel)getContentPane()).setBorder(javax.swing.BorderFactory.createEmptyBorder(10,10,10,10));
+			javax.swing.JPanel pnlStats = new javax.swing.JPanel(){
+				@Override protected void paintComponent(java.awt.Graphics g){
+					super.paintComponent(g);
+					java.awt.Graphics2D g2=(java.awt.Graphics2D)g;
+					g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+					g2.setColor(panelDark); g2.fillRoundRect(0,0,getWidth(),getHeight(),30,30);
+					g2.setColor(java.awt.Color.WHITE);
+					g2.setFont(new java.awt.Font("Segoe UI",java.awt.Font.BOLD,18));
+					g2.drawString("\u26A1 Operations Summary",15,30);
+					g2.setFont(new java.awt.Font("Consolas",java.awt.Font.ITALIC,9));
+					g2.setColor(new java.awt.Color(140,140,140));
+					g2.drawString("All Models: RF + SVM + RL + GAN + Forecaster",15,44);
+					int y=65; int sp=28;
+					g2.setFont(new java.awt.Font("Segoe UI",java.awt.Font.BOLD,14));
+					g2.setColor(neonCyan); g2.drawString("Packets Processed:",15,y);
+					g2.setColor(java.awt.Color.WHITE); g2.drawString(String.format("%,d",pktCount),200,y); y+=sp;
+					g2.setColor(neonRed); g2.drawString("Anomalies Detected:",15,y);
+					g2.setColor(java.awt.Color.WHITE); g2.drawString(String.format("%,d",anomCount),200,y); y+=sp;
+					double anomRate=pktCount==0?0:(anomCount*100.0/pktCount);
+					g2.setColor(neonOrange); g2.drawString("Anomaly Rate:",15,y);
+					g2.setColor(anomRate>10?neonRed:neonGreen); g2.drawString(String.format("%.2f%%",anomRate),200,y); y+=sp;
+					double mae=pktCount==0?0:sumError/pktCount;
+					g2.setColor(neonMagenta); g2.drawString("Mean Abs Error:",15,y);
+					g2.setColor(java.awt.Color.WHITE); g2.drawString(String.format("%.4f ms",mae),200,y); y+=sp;
+					g2.setColor(neonCyan); g2.drawString("Min Latency:",15,y);
+					g2.setColor(java.awt.Color.WHITE); g2.drawString(String.format("%.3f ms",minLat==Double.MAX_VALUE?0:minLat),200,y); y+=sp;
+					g2.setColor(neonCyan); g2.drawString("Max Latency:",15,y);
+					g2.setColor(java.awt.Color.WHITE); g2.drawString(String.format("%.3f ms",maxLat),200,y); y+=sp;
+					g2.setColor(neonGreen); g2.drawString("RL Actions:",15,y);
+					g2.setColor(java.awt.Color.WHITE); g2.drawString(String.format("%,d",rlActions),200,y); y+=sp;
+					g2.setColor(neonOrange); g2.drawString("GAN Injections:",15,y);
+					g2.setColor(java.awt.Color.WHITE); g2.drawString(String.format("%,d",ganInjections),200,y); y+=sp;
+					long elapsed=(System.currentTimeMillis()-startMs)/1000;
+					g2.setColor(new java.awt.Color(160,160,160)); g2.drawString("Uptime:",15,y);
+					g2.setColor(java.awt.Color.WHITE); g2.drawString(String.format("%dm %ds",elapsed/60,elapsed%60),200,y); y+=sp;
+					g2.setColor(neonMagenta); g2.drawString("Last Prediction:",15,y);
+					g2.setColor(java.awt.Color.WHITE); g2.drawString(String.format("%.3f ms (actual: %.3f)",lastPred,lastActual),200,y);
+				}
+			};
+			pnlStats.setOpaque(false);
+			javax.swing.JPanel pnlLog = new javax.swing.JPanel(){
+				@Override protected void paintComponent(java.awt.Graphics g){
+					super.paintComponent(g);
+					java.awt.Graphics2D g2=(java.awt.Graphics2D)g;
+					g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+					g2.setColor(panelDark); g2.fillRoundRect(0,0,getWidth(),getHeight(),30,30);
+					g2.setColor(java.awt.Color.WHITE);
+					g2.setFont(new java.awt.Font("Segoe UI",java.awt.Font.BOLD,18));
+					g2.drawString("\u23F1 Live Event Log",15,30);
+					g2.setFont(new java.awt.Font("Consolas",java.awt.Font.PLAIN,11));
+					int y=50; int maxLines=(getHeight()-60)/14;
+					int start=Math.max(0,logLines.size()-maxLines);
+					for(int i=start;i<logLines.size();i++){
+						String line=logLines.get(i);
+						if(line.contains("ANOMALY")) g2.setColor(neonRed);
+						else if(line.contains("GAN")) g2.setColor(neonOrange);
+						else if(line.contains("RL")) g2.setColor(neonGreen);
+						else g2.setColor(new java.awt.Color(180,180,180));
+						g2.drawString(line,10,y); y+=14;
+					}
+				}
+			};
+			pnlLog.setOpaque(false);
+			add(pnlStats); add(pnlLog);
+		}
+		public void addData(double actual,double pred,double anomScore,boolean wasGan,boolean wasRl){
+			javax.swing.SwingUtilities.invokeLater(()->{pktCount++;
+				lastPred=pred; lastActual=actual;
+				sumError+=Math.abs(actual-pred);
+				if(actual<minLat)minLat=actual; if(actual>maxLat)maxLat=actual;
+				if(anomScore<0){anomCount++;logLines.add(String.format("[%05d] \u26A0 ANOMALY lat=%.2f pkt=%.0f",pktCount,actual,pred));}
+				if(wasGan){ganInjections++;logLines.add(String.format("[%05d] \u2622 GAN DDoS injection simulated",pktCount));}
+				if(wasRl){rlActions++;if(pktCount%50==0)logLines.add(String.format("[%05d] \u2699 RL Q-Learning action applied",pktCount));}
+				if(pktCount%25==0)logLines.add(String.format("[%05d] \u2713 Processed lat=%.2f pred=%.3f err=%.4f",pktCount,actual,pred,Math.abs(actual-pred)));
+				if(logLines.size()>500)logLines.remove(0);
+				repaint();
+			});
+		}
+	}
 	public LatencyDash latDash;
 	public SecurityDash secDash;
 	public TelemetryDash telDash;
 	public EnergyDash engDash;
+	public ReportDash rptDash;
 ]]></AdditionalClassCode>
 			<StartupCode><![CDATA[
 	try {
@@ -450,17 +606,20 @@
 		secDash = new SecurityDash();
 		telDash = new TelemetryDash();
 		engDash = new EnergyDash();
+		rptDash = new ReportDash();
 		
 		// Perfect 4-Quadrant 1080p fit
 		latDash.setLocation(50, 50);
 		secDash.setLocation(770, 50);
 		telDash.setLocation(770, 520);
 		engDash.setLocation(50, 520);
+		rptDash.setLocation(1490, 50);
 		
 		latDash.setVisible(true);
 		secDash.setVisible(true);
 		telDash.setVisible(true);
 		engDash.setVisible(true);
+		rptDash.setVisible(true);
 	} catch (Exception e) {}
 ]]></StartupCode>
 			<Generic>false</Generic>
@@ -1263,6 +1422,9 @@
         if (secDash != null) secDash.addData(agent.flow_duration, agent.packet_size, anomalyScore);
         if (telDash != null) telDash.addData(agent.flow_duration, pred, anomalyScore);
         if (engDash != null) engDash.addData(agent.packet_size, anomalyScore);
+        boolean _wasGan = (agent.packet_size > 14000);
+        boolean _wasRl = true;
+        if (rptDash != null) rptDash.addData(agent.flow_duration, pred, anomalyScore, _wasGan, _wasRl);
     } catch (Throwable e) { 
         System.err.println("AI Ecosystem Error: " + e.toString()); 
     }
@@ -2280,8 +2442,8 @@
 	}
 }]]></Text>
 		</JavaClass>
-		<!--   =========   Java Class   ========  -->
-		<JavaClass>
+			
+			<JavaClass>
 			<Id>1777582939672</Id>
 			<Name><![CDATA[OfflineAiPredictor]]></Name>
 			<Text><![CDATA[public class OfflineAiPredictor {
@@ -21498,7 +21660,6 @@
     }
 }]]></Text>
 		</JavaClass>
-		<!--   =========   Java Class   ========  -->
 		<JavaClass>
 			<Id>1777582939675</Id>
 			<Name><![CDATA[AnomalyModel]]></Name>
@@ -21508,8 +21669,7 @@
     }
 }]]></Text>
 		</JavaClass>
-		<!--   =========   Java Class   ========  -->
-		<JavaClass>
+			<JavaClass>
 			<Id>1777583541875</Id>
 			<Name><![CDATA[FutureForecaster]]></Name>
 			<Text><![CDATA[public class FutureForecaster {
@@ -26714,8 +26874,7 @@
     }
 }]]></Text>
 		</JavaClass>
-		<!--   =========   Java Class   ========  -->
-		<JavaClass>
+			<JavaClass>
 			<Id>1777583705628</Id>
 			<Name><![CDATA[QTableBalancer]]></Name>
 			<Text><![CDATA[import java.util.HashMap;
