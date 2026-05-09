@@ -50,3 +50,5 @@ For regression tasks, performance is reported using Mean Absolute Error (MAE):
 \section{Deployment Rationale}
 
 Exporting models into Java source enables in-process inference inside AnyLogic without external services, serialization steps, or cross-language RPC overhead. This keeps experiments reproducible and reduces engineering complexity for the simulation runtime.
+
+This in-process approach minimizes inference latency for decision-making during packet processing, simplifies deployment by removing external serving infrastructure, and accelerates iteration for model updates. Tight coupling between simulator state and predictor inputs improves fidelity of offline-to-online evaluation, allowing more realistic validation of control strategies. Finally, shipping lightweight exported models reduces the operational footprint for demonstration and teaching scenarios.

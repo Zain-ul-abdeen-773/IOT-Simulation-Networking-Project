@@ -7,8 +7,9 @@
 
 The Aegis-IoT platform is organized into a small set of layers that connect simulation, intelligence, and observability. Figure~\ref{fig:arch} summarizes the main components and data flow.
 
-\begin{figure}[H]
+\begin{figure}[p]
 \centering
+% Place architecture diagram on a dedicated float page to avoid overlap
 % Scale the architecture diagram to fit text width to avoid node/caption overlap
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
@@ -50,6 +51,7 @@ The Aegis-IoT platform is organized into a small set of layers that connect simu
     \draw[arrow] (L2) -- (L3);
 \end{tikzpicture}%
 }
+\vspace{0.8em}
 \caption{Aegis-IoT system architecture from packet generation to intelligence and visualization.}
 \label{fig:arch}
 \end{figure}
