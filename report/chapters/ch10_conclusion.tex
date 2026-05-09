@@ -3,75 +3,33 @@
 % ============================================================
 \chapter{Conclusion and Future Work}
 
-\section{Summary of Achievements}
+\section{Conclusion}
 
-This project has successfully designed, implemented, and validated a comprehensive AI-driven IoT Network Intelligence Platform—\textbf{Aegis-IoT}—that integrates five distinct AI/ML paradigms into a unified simulation environment:
+This project demonstrates an end-to-end approach for studying IoT network behavior with embedded intelligence. Aegis-IoT integrates agent-based simulation, predictive modeling, anomaly scoring, adaptive control, and multi-surface visualization into a single workflow that supports repeatable experiments.
 
-\begin{enumerate}
-    \item \textbf{Supervised Learning (Random Forest):} Trained on real-world RT-IoT2022 MQTT traffic data and transpiled into 19,216 lines of native Java for zero-latency latency prediction.
+\section{Key Outcomes}
 
-    \item \textbf{Unsupervised Learning (OneClassSVM):} Deployed for real-time anomaly detection with 35,549 lines of transpiled Java, correctly identifying GAN-simulated DDoS intrusions.
-
-    \item \textbf{Time-Series Forecasting:} Autoregressive model with sliding window architecture predicting latency 10 steps ahead, transpiled into 285,771 lines of Java.
-
-    \item \textbf{Reinforcement Learning (Q-Learning):} Tabular Q-Learning agent with 4-state, 3-action space for autonomous load balancing, learning optimal throttling policies through reward-driven exploration.
-
-    \item \textbf{Federated Learning (FedAvg):} Privacy-preserving distributed training across 3 simulated edge nodes with cloud-based weight aggregation, demonstrating convergence over 10 communication rounds.
-\end{enumerate}
-
-Additionally, the project delivers:
 \begin{itemize}
-    \item A \textbf{GAN-inspired adversarial traffic injector} for stress-testing the anomaly detection pipeline.
-    \item A \textbf{four-window Network Operations Center} with hardware-accelerated Java2D rendering.
-    \item A \textbf{Digital Twin} with composite health scoring combining battery depletion and anomaly density.
-    \item A \textbf{modern React/Vite web dashboard} for cross-platform analytics.
-    \item A \textbf{Python injection engine} for reproducible, infrastructure-as-code simulation enhancement.
+    \item A structured AnyLogic simulation of IoT packet flows with dataset-calibrated telemetry.
+    \item Inline inference for latency prediction, anomaly scoring, and short-horizon forecasting.
+    \item A tabular Q-learning policy to adapt behavior under varying congestion levels.
+    \item A federated learning prototype demonstrating parameter aggregation without raw data exchange.
+    \item Desktop and web dashboards for real-time monitoring and offline analysis.
 \end{itemize}
-
-\section{Key Technical Innovations}
-
-\subsection{AST Transpilation for Zero-Latency ML}
-
-The use of \texttt{m2cgen} to transpile Python-trained models into native Java bytecode is the cornerstone innovation of this project. By eliminating inter-process communication, serialization overhead, and Python runtime dependencies, we achieved sub-millisecond inference directly within the AnyLogic simulation loop. This approach is generalizable to any simulation environment with a JVM-based runtime.
-
-\subsection{Decoupled Multi-Window NOC}
-
-The transition from monolithic dashboards to independent, thread-safe Java Swing frames prevents UI rendering from bottlenecking the discrete-event engine. Each dashboard operates on its own repaint cycle, ensuring that complex visualizations (e.g., the Digital Twin radar) do not steal CPU cycles from packet processing.
-
-\subsection{Infrastructure-as-Code for Simulation}
-
-The injection engine treats AnyLogic project modifications as version-controlled, auditable code transformations. This paradigm enables rapid experimentation with different AI configurations without manual GUI interaction—a significant contribution to simulation engineering methodology.
 
 \section{Limitations}
 
-\begin{enumerate}
-    \item \textbf{Simulated Traffic vs.\ Live Networks:} The current platform operates on pre-recorded dataset distributions. Real-world deployment would require integration with live MQTT brokers.
+\begin{itemize}
+    \item The experiments are simulation-based and use dataset-derived distributions rather than a live MQTT broker.
+    \item The energy and stress-traffic models are simplified proxies intended for controlled evaluation.
+    \item Tabular Q-learning scales to small discrete spaces; richer state representations would require function approximation.
+\end{itemize}
 
-    \item \textbf{Battery Model Fidelity:} The energy depletion formula is a simplified heuristic. Production Digital Twins would require calibration against specific IoT device datasheets and energy profiles.
+\subsection{Future Work}
 
-    \item \textbf{GAN Fidelity:} The adversarial traffic injector uses statistical distributions rather than a trained generative neural network. A full GAN with generator-discriminator training would produce more realistic attack patterns.
-
-    \item \textbf{Q-Table Scalability:} The tabular Q-Learning approach is limited by the discrete state-action space. High-dimensional state representations would require Deep Q-Networks (DQN) with function approximation.
-\end{enumerate}
-
-\section{Future Work}
-
-Several directions for future enhancement have been identified:
-
-\begin{enumerate}
-    \item \textbf{Deep Q-Network (DQN):} Replace the tabular Q-Learning agent with a neural network-based DQN for continuous state representations and improved generalization.
-
-    \item \textbf{Graph Neural Networks (GNN):} Model the IoT network topology as a graph and apply GNN-based traffic prediction for topology-aware latency forecasting.
-
-    \item \textbf{Live MQTT Integration:} Connect the simulation to a live MQTT broker (e.g., Mosquitto) for real-time traffic ingestion and prediction validation.
-
-    \item \textbf{Transformer-Based Forecasting:} Replace the Random Forest forecaster with attention-based temporal models (e.g., Temporal Fusion Transformers) for improved long-horizon prediction.
-
-    \item \textbf{Differential Privacy:} Enhance the federated learning pipeline with differential privacy guarantees ($\epsilon$-DP) by adding calibrated noise to weight updates.
-
-    \item \textbf{Production Deployment:} Package the web dashboard and ML inference pipeline as Docker containers for cloud-native deployment with Kubernetes orchestration.
-\end{enumerate}
-
-\section{Final Remarks}
-
-The Aegis-IoT platform demonstrates that advanced artificial intelligence can be seamlessly integrated into network simulation environments without compromising performance. By treating machine learning models as native computational primitives rather than external services, we have created a simulation platform that thinks, predicts, and defends in real-time. The platform fulfills all requirements outlined in the original project proposal and provides a robust foundation for future research in AI-driven network management.
+\begin{itemize}
+    \item Integrate live MQTT traffic ingestion to validate models under real network conditions.
+    \item Extend the controller from tabular Q-learning to deep RL for continuous or high-dimensional state.
+    \item Improve forecasting with sequence models and evaluate robustness to distribution shift.
+    \item Add privacy mechanisms (e.g., differential privacy) to the federated learning prototype.
+\end{itemize}

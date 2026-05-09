@@ -3,99 +3,45 @@
 % ============================================================
 \chapter{Literature Review}
 
-\section{IoT Network Simulation}
+This project combines established ideas from simulation, network analytics, and distributed learning into a single experimental platform.
 
-The Internet of Things represents a paradigm shift in networked computing, connecting billions of resource-constrained devices across heterogeneous communication protocols. Simulating these networks is critical for understanding their behavior under various load conditions, failure modes, and adversarial scenarios.
+\section{IoT Simulation and MQTT}
 
-\textbf{AnyLogic} \cite{anylogic} is a multi-method simulation platform that supports agent-based, discrete-event, and system dynamics modeling. Unlike packet-level simulators such as NS-3 or OMNeT++, AnyLogic operates at a higher abstraction level, enabling rapid prototyping of complex network topologies with embedded business logic. The platform's Java-based engine allows seamless integration of custom machine learning algorithms directly into the simulation loop—a capability that is central to the Aegis-IoT architecture.
+AnyLogic \cite{anylogic} supports agent-based and discrete-event modeling, making it suitable for simulating end-to-end IoT workflows with embedded logic. MQTT \cite{mqtt} is a widely used lightweight publish--subscribe protocol in IoT; modeling MQTT-style flows enables repeatable experiments around latency, burstiness, and anomalous traffic.
 
-The \textbf{MQTT (Message Queuing Telemetry Transport)} protocol \cite{mqtt} is the de facto standard for IoT communication, designed for lightweight publish-subscribe messaging over bandwidth-constrained channels. In our simulation, MQTT packets are modeled as discrete agents carrying \texttt{NetworkMetrics} payloads (packet size, inter-arrival time, flow duration) that traverse the simulated network from sensor devices through gateways to cloud processing sinks.
+\section{Learning for Prediction and Detection}
 
-\section{Machine Learning for Network Security}
+For latency prediction, Random Forests \cite{rf} provide a strong baseline for non-linear regression on tabular telemetry features and are robust to noise. For anomaly detection without requiring labeled attacks, One-Class SVMs \cite{ocsvm} learn a boundary around normal traffic and flag out-of-distribution observations.
 
-The application of machine learning to network security has evolved significantly over the past decade. Traditional intrusion detection systems (IDS) relied on signature-based matching, which fails against zero-day attacks and polymorphic malware. Modern approaches leverage statistical learning to identify anomalous patterns in network traffic.
+To stress-test detection logic, DDoS behavior can be approximated by generating traffic that is statistically distant from normal operation; GANs \cite{gan} motivate this style of synthetic generation, while survey work \cite{ddos} contextualizes common volumetric flooding patterns.
 
-\subsection{Random Forest for Latency Prediction}
+\section{Adaptive Control and Distributed Training}
 
-Random Forests \cite{rf} are ensemble learning methods that construct multiple decision trees during training and output the mean prediction of individual trees. For network latency prediction, Random Forests offer several advantages:
+Reinforcement learning provides a framework for adaptive control under uncertainty. Q-learning \cite{qlearning} is a simple, well-studied approach for learning a policy over discrete state--action spaces and is appropriate for prototyping congestion-aware decisions.
 
-\begin{itemize}
-    \item \textbf{Non-linearity:} Network latency is influenced by complex, non-linear interactions between packet size, queue depth, and inter-arrival timing.
-    \item \textbf{Robustness:} The ensemble averaging mechanism reduces overfitting, critical when training on noisy network telemetry data.
-    \item \textbf{Interpretability:} Individual decision trees can be inspected to understand which features most strongly influence latency predictions.
-\end{itemize}
+Federated Learning \cite{fedavg} enables collaborative model training without centralizing raw data. The FedAvg algorithm aggregates model updates from distributed clients, supporting experiments in privacy-preserving training and bandwidth reduction.
 
-In our implementation, a Random Forest with 10 estimators and maximum depth of 10 is trained on the RT-IoT2022 dataset features (\texttt{packetSize}, \texttt{interArrival}) to predict \texttt{flowDuration}.
+Digital Twin concepts \cite{digitaltwin} motivate mapping live telemetry into higher-level health indicators that support operator situational awareness.
 
-\subsection{One-Class SVM for Anomaly Detection}
+\section{Deployment in JVM-Based Simulations}
 
-The One-Class Support Vector Machine (OneClassSVM) \cite{ocsvm} is a kernel-based method for novelty detection. Unlike binary classifiers that require labeled examples of both normal and anomalous behavior, OneClassSVM learns the boundary of the normal data distribution and flags any observation falling outside this boundary as anomalous.
+Bridging Python-based model development and a JVM-based simulator motivates model-to-code approaches. The \texttt{m2cgen} framework \cite{m2cgen} exports classical ML models into native source code, enabling inference inside the simulation runtime without a separate service boundary.
 
-The mathematical formulation seeks to find a hyperplane in a high-dimensional feature space that maximizes the margin between the origin and the mapped data points:
-
-\begin{equation}
-\min_{w, \xi, \rho} \frac{1}{2}\|w\|^2 + \frac{1}{\nu n}\sum_{i=1}^{n}\xi_i - \rho
-\end{equation}
-
-subject to:
-\begin{equation}
-w \cdot \phi(x_i) \geq \rho - \xi_i, \quad \xi_i \geq 0
-\end{equation}
-
-where $\nu \in (0,1]$ controls the fraction of training points allowed outside the boundary. In our implementation, $\nu = 0.05$, expecting approximately 5\% of traffic to be anomalous.
-
-\subsection{Generative Adversarial Networks for DDoS Simulation}
-
-Generative Adversarial Networks (GANs) \cite{gan} consist of two neural networks—a generator and a discriminator—trained in an adversarial game. In the context of network security, GANs can synthesize realistic attack traffic that mimics the statistical properties of real-world DDoS intrusions.
-
-Our implementation uses a GAN-inspired traffic injector that generates adversarial packets with the following characteristics:
-\begin{itemize}
-    \item \textbf{Volumetric flood:} Packet sizes drawn from $\mathcal{N}(15000, 2000^2)$, significantly larger than normal MQTT traffic.
-    \item \textbf{Micro-burst timing:} Inter-arrival times drawn from $\text{Exp}(10.0)$, simulating rapid-fire packet injection.
-    \item \textbf{Anomalous flow duration:} Duration values drawn from $\mathcal{N}(150.0, 30.0^2)$, well outside the normal operational range.
-\end{itemize}
-
-\section{Reinforcement Learning for Network Management}
-
-Reinforcement Learning (RL) \cite{qlearning} provides a framework for autonomous decision-making in dynamic environments. Unlike supervised learning, RL agents learn optimal policies through trial-and-error interaction with the environment, receiving scalar reward signals that guide behavior.
-
-\textbf{Q-Learning} is a model-free, off-policy RL algorithm that learns the value of state-action pairs through the Bellman equation:
-
-\begin{equation}
-Q(s, a) \leftarrow Q(s, a) + \alpha \left[ r + \gamma \max_{a'} Q(s', a') - Q(s, a) \right]
-\end{equation}
-
-where $\alpha$ is the learning rate, $\gamma$ is the discount factor, $r$ is the immediate reward, $s'$ is the next state, and the $\max$ operation selects the action with the highest estimated value. The $\epsilon$-greedy exploration strategy balances exploitation of known good actions with exploration of potentially superior alternatives.
-
-In network management, Q-Learning has been applied to adaptive routing, resource allocation, and congestion control. Our implementation uses a tabular Q-Learning approach with a discrete state space defined by queue depth ranges and an action space of delay multipliers.
-
-\section{Federated Learning}
-
-Federated Learning \cite{fedavg} enables collaborative model training across distributed devices without centralizing raw data. The \textbf{Federated Averaging (FedAvg)} algorithm operates as follows:
-
-\begin{enumerate}
-    \item A central server distributes the current global model weights to participating edge nodes.
-    \item Each edge node trains the model locally on its private data partition using Stochastic Gradient Descent (SGD).
-    \item Edge nodes transmit only the updated model weights (not raw data) back to the server.
-    \item The server aggregates weights using a weighted average:
-\end{enumerate}
-
-\begin{equation}
-w_{t+1} = \sum_{k=1}^{K} \frac{n_k}{n} w_{t+1}^k
-\end{equation}
-
-where $K$ is the number of edge nodes, $n_k$ is the number of samples on node $k$, $n$ is the total number of samples, and $w_{t+1}^k$ are the updated weights from node $k$.
-
-This approach preserves data privacy, reduces communication overhead, and enables training on edge devices with limited connectivity.
-
-\section{Digital Twin Technology}
-
-A Digital Twin \cite{digitaltwin} is a virtual replica of a physical system that mirrors its real-time state through continuous data synchronization. In IoT networks, Digital Twins enable operators to monitor node health, predict failures, and simulate ``what-if'' scenarios without disrupting the physical infrastructure.
-
-Our implementation computes a composite Digital Twin health score combining battery depletion status and recent anomaly density, providing a holistic view of virtual node viability.
-
-\section{Model-to-Code Generation (m2cgen)}
-
-The \texttt{m2cgen} (Model to Code Generator) framework \cite{m2cgen} addresses a critical deployment challenge: bridging the gap between Python-based model training and production execution environments that require native code. The framework traverses the trained model's internal structure (e.g., decision tree nodes, coefficients) and generates equivalent source code in the target language.
-
-For Random Forest models, \texttt{m2cgen} produces a series of nested \texttt{if-else} statements that replicate each decision tree's branching logic. The final prediction is computed as the average of all tree outputs. This approach eliminates the need for Python runtime dependencies, serialization/deserialization overhead, and inter-process communication latency.
+\begin{table}[H]
+\centering
+\caption{Techniques Used in Aegis-IoT and Motivation}
+\label{tab:lit_summary}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Technique} & \textbf{Motivation in This Project} \\
+\midrule
+AnyLogic simulation \cite{anylogic} & Rapid, agent-based experimentation with end-to-end IoT flows and inline logic. \\
+MQTT modeling \cite{mqtt} & Realistic IoT traffic abstraction for latency and anomaly experiments. \\
+Random Forest regression \cite{rf} & Non-linear latency prediction on telemetry features with good stability. \\
+One-Class SVM \cite{ocsvm} & Unsupervised novelty detection for attack-like or abnormal traffic. \\
+Q-learning \cite{qlearning} & Simple adaptive policy learning for congestion-aware control. \\
+FedAvg \cite{fedavg} & Privacy-aware distributed training prototype across edge nodes. \\
+m2cgen \cite{m2cgen} & In-process inference in the JVM without external serving infrastructure. \\
+\bottomrule
+\end{tabularx}
+\end{table}

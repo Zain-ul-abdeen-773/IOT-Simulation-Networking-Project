@@ -9,9 +9,6 @@
 \usepackage{xcolor}
 \usepackage{tikz}
 \usepackage{amsmath,amssymb}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-\usepackage{listings}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{hyperref}
@@ -40,24 +37,6 @@
 \definecolor{codeGray}{RGB}{30,30,30}
 \definecolor{accentBlue}{RGB}{88,166,255}
 \definecolor{accentPurple}{RGB}{124,92,255}
-
-% ============ LISTINGS STYLE ============
-\lstdefinestyle{code}{
-    backgroundcolor=\color{codeGray},
-    basicstyle=\ttfamily\footnotesize\color{white},
-    keywordstyle=\color{neonCyan}\bfseries,
-    commentstyle=\color{green!60!black},
-    stringstyle=\color{neonMagenta},
-    numberstyle=\tiny\color{gray},
-    numbers=left,
-    numbersep=8pt,
-    breaklines=true,
-    frame=single,
-    rulecolor=\color{gray!30},
-    tabsize=4,
-    showstringspaces=false,
-}
-\lstset{style=code}
 
 % ============ HEADER/FOOTER ============
 \pagestyle{fancy}
@@ -155,11 +134,17 @@
 \end{tikzpicture}
 \end{titlepage}
 
+% ============ BODY STYLE (keeps title page unchanged) ============
+\setstretch{1.15}
+\setlength{\parskip}{6pt}
+\setlist{leftmargin=*, itemsep=2pt, topsep=4pt}
+\setcounter{tocdepth}{1}
+\setlength{\headheight}{14pt}
+
+% (Chapters are defined directly in chapter files as \section now.)
+
 % ============ TABLE OF CONTENTS ============
 \tableofcontents
-\newpage
-\listoffigures
-\listoftables
 \newpage
 
 % ============ CHAPTERS ============

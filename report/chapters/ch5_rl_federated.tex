@@ -1,21 +1,21 @@
 % ============================================================
 %  CHAPTER 5 — REINFORCEMENT LEARNING & FEDERATED LEARNING
 % ============================================================
-\chapter{Reinforcement Learning and Federated Learning}
+\chapter{Reinforcement \& Federated Learning}
 
 \section{Tabular Q-Learning Load Balancer}
 
 \subsection{Motivation}
 
-Static queue management policies (e.g., fixed-capacity buffers, FIFO scheduling) fail to adapt to the dynamic, bursty nature of IoT traffic. When a volumetric DDoS attack floods the gateway with oversized packets, a static policy either drops legitimate traffic or allows the queue to overflow. An adaptive, learning-based approach is required.
+IoT traffic can change rapidly due to bursts and attack-like behavior. A static buffering or throttling policy is therefore difficult to tune across operating regimes. Reinforcement learning provides an adaptive control mechanism that learns which action is preferable for a given congestion state.
 
-\subsection{State-Action Space Design}
+\subsection{State--Action Design}
 
-The \texttt{QTableBalancer} operates in a discrete state-action space:
+The controller uses a discrete state space based on queue depth and a small action space of delay multipliers (Table~\ref{tab:rl_space}).
 
 \begin{table}[H]
 \centering
-\caption{Q-Learning State-Action Space}
+\caption{Q-Learning State--Action Space}
 \label{tab:rl_space}
 \begin{tabular}{@{}lll@{}}
 \toprule
@@ -28,192 +28,48 @@ The \texttt{QTableBalancer} operates in a discrete state-action space:
 \quad Critical & Queue $\geq 100$ & Imminent overflow \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{Action Space}} \\
-\quad Accelerate & $0.5\times$ & Halve flow duration (speed up) \\
+\quad Accelerate & $0.5\times$ & Speed up processing \\
 \quad Maintain & $1.0\times$ & No change \\
-\quad Throttle & $2.0\times$ & Double flow duration (slow down) \\
+\quad Throttle & $2.0\times$ & Slow down processing \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Reward Function}
+\subsection{Reward and Update Rule}
 
-The reward function penalizes high latency, incentivizing the agent to minimize end-to-end flow duration:
-
+The immediate reward is defined to penalize large flow durations:
 \begin{equation}
-r(s, a) = -\text{flow\_duration}(s, a)
+r(s, a) = -\text{flowDuration}(s, a)
 \end{equation}
 
-This design creates a strong gradient toward actions that reduce overall packet processing time. Buffer overflow events (implicit in the ``Critical'' state) receive the heaviest penalties due to their associated extreme flow durations.
-
-\subsection{Q-Table Update Rule}
-
-The Q-table is updated using the standard temporal difference learning rule:
-
+Q-values are updated using the standard temporal-difference rule \cite{qlearning}:
 \begin{equation}
-Q(s, a) \leftarrow Q(s, a) + \alpha \left[ r + \gamma \max_{a'} Q(s', a') - Q(s, a) \right]
+Q(s, a) \leftarrow Q(s, a) + \alpha \left[r + \gamma \max_{a'} Q(s', a') - Q(s, a)\right]
 \end{equation}
 
-with $\alpha = 0.1$ (learning rate), $\gamma = 0.9$ (discount factor), and $\epsilon = 0.2$ (exploration rate).
+\subsection{Integration}
 
-\subsection{Implementation}
-
-The \texttt{QTableBalancer.java} implementation uses a \texttt{HashMap<String, Double>} for the Q-table, enabling efficient lookup with composite state-action keys:
-
-\begin{lstlisting}[language=Java, caption={QTableBalancer Core Implementation}]
-public class QTableBalancer {
-    private static HashMap<String, Double> qTable
-        = new HashMap<>();
-    private static double alpha = 0.1;
-    private static double gamma = 0.9;
-    private static double epsilon = 0.2;
-
-    public static String getState(int queueSize) {
-        if (queueSize < 10) return "Low";
-        if (queueSize < 50) return "Medium";
-        if (queueSize < 100) return "High";
-        return "Critical";
-    }
-
-    public static double chooseAction(String state) {
-        if (Math.random() < epsilon) {
-            // Explore: random action
-            double r = Math.random();
-            if (r < 0.33) return 0.5;
-            if (r < 0.66) return 1.0;
-            return 2.0;
-        }
-        // Exploit: best known action
-        double bestQ = -9999, bestAction = 1.0;
-        for (double a : new double[]{0.5, 1.0, 2.0}) {
-            double q = qTable.getOrDefault(
-                state + "_" + a, 0.0);
-            if (q > bestQ) { bestQ = q; bestAction = a; }
-        }
-        return bestAction;
-    }
-
-    public static void update(String state, double action,
-            double reward, String nextState) {
-        String key = state + "_" + action;
-        double oldQ = qTable.getOrDefault(key, 0.0);
-        double maxNextQ = -9999;
-        for (double a : new double[]{0.5, 1.0, 2.0}) {
-            double q = qTable.getOrDefault(
-                nextState + "_" + a, 0.0);
-            if (q > maxNextQ) maxNextQ = q;
-        }
-        double newQ = oldQ + alpha *
-            (reward + gamma * maxNextQ - oldQ);
-        qTable.put(key, newQ);
-    }
-}
-\end{lstlisting}
-
-\subsection{Integration with Simulation}
-
-The RL agent is invoked inline within the \texttt{Cloud\_Received} processing hook:
-
-\begin{lstlisting}[language=Java, caption={RL Hook in Simulation Loop}]
-int simulatedQueue = (int)(agent.inter_arrival % 120);
-String state = QTableBalancer.getState(simulatedQueue);
-double actionDelay = QTableBalancer.chooseAction(state);
-agent.flow_duration *= actionDelay; // Apply RL action
-double reward = -agent.flow_duration;
-QTableBalancer.update(state, actionDelay, reward,
-    QTableBalancer.getState(simulatedQueue + 1));
-\end{lstlisting}
+During packet processing, the simulation estimates a congestion state, selects an action using an $\epsilon$-greedy policy, applies the multiplier, and updates the Q-table. This provides a closed feedback loop between observed performance and future control choices.
 
 \section{Federated Learning Pipeline}
 
 \subsection{Motivation}
 
-Centralizing raw IoT sensor data for model training introduces three critical concerns:
+Centralizing raw telemetry can be undesirable due to privacy and bandwidth constraints. Federated Learning mitigates this by training locally at the edge and sharing only model updates.
 
+\subsection{FedAvg Summary}
+
+The platform prototypes Federated Averaging (FedAvg) \cite{fedavg} in a simplified setting:
 \begin{enumerate}
-    \item \textbf{Privacy:} Sensor telemetry may contain sensitive operational information that should not leave the edge device.
-    \item \textbf{Bandwidth:} Transmitting raw data from thousands of edge nodes to a central server consumes significant network bandwidth.
-    \item \textbf{Single Point of Failure:} A centralized training server represents a critical vulnerability.
+    \item the cloud initializes and broadcasts a global model,
+    \item each edge node trains locally on its private data partition,
+    \item nodes upload model updates (not raw records), and
+    \item the cloud aggregates updates to form the next global model.
 \end{enumerate}
 
-Federated Learning addresses all three concerns by distributing the training process to the edge while aggregating only model parameters at the cloud.
+The aggregation step can be expressed as:
+\begin{equation}
+w_{t+1} = \sum_{k=1}^{K} \frac{n_k}{n} w_{t+1}^{k}
+\end{equation}
 
-\subsection{Architecture}
-
-The federated pipeline consists of two component types:
-
-\subsubsection{Edge Node (\texttt{edge\_node.py})}
-
-Each edge node simulates a localized IoT sensor array with access to a private data partition:
-
-\begin{lstlisting}[language=Python, caption={Edge Node Implementation}]
-class EdgeNode:
-    def __init__(self, node_id, data_path):
-        self.node_id = node_id
-        self.model = SGDRegressor(
-            max_iter=1000, tol=1e-3, random_state=42)
-
-    def train_locally(self):
-        df = pd.read_csv(self.data_path)
-        chunk_size = len(df) // 3
-        start_idx = self.node_id * chunk_size
-        local_df = df.iloc[start_idx:
-                           start_idx + chunk_size]
-
-        X = local_df[["packetSize",
-                       "interArrival"]].values
-        y = local_df["flowDuration"].values
-
-        self.model.partial_fit(X, y)
-
-        # Return only weights, never raw data
-        return {
-            'coef': self.model.coef_,
-            'intercept': self.model.intercept_
-        }
-\end{lstlisting}
-
-\subsubsection{Cloud Aggregator (\texttt{cloud\_server.py})}
-
-The cloud server implements the FedAvg algorithm:
-
-\begin{lstlisting}[language=Python, caption={Cloud Aggregator (FedAvg)}]
-class CloudAggregator:
-    def aggregate_weights(self, edge_weights_list):
-        n_nodes = len(edge_weights_list)
-        avg_coef = np.zeros_like(
-            edge_weights_list[0]['coef'])
-        avg_intercept = np.zeros_like(
-            edge_weights_list[0]['intercept'])
-
-        for w in edge_weights_list:
-            avg_coef += w['coef'] / n_nodes
-            avg_intercept += w['intercept'] / n_nodes
-
-        self.global_weights = {
-            'coef': avg_coef,
-            'intercept': avg_intercept
-        }
-        return self.global_weights
-\end{lstlisting}
-
-\subsection{FedAvg Convergence Simulation}
-
-The \texttt{plot\_federated.py} script simulates the complete federated training loop over 10 communication rounds with 3 edge nodes:
-
-\begin{algorithm}[H]
-\caption{Federated Averaging (FedAvg) Protocol}
-\label{alg:fedavg}
-\begin{algorithmic}[1]
-\State Initialize global model $w_0$
-\For{each round $t = 1, 2, \ldots, T$}
-    \For{each edge node $k = 1, 2, 3$}
-        \State $w_t^k \leftarrow w_t$ \Comment{Download global weights}
-        \State $w_{t+1}^k \leftarrow \text{SGD}(w_t^k, \mathcal{D}_k)$ \Comment{Local training}
-    \EndFor
-    \State $w_{t+1} \leftarrow \frac{1}{K}\sum_{k=1}^{K} w_{t+1}^k$ \Comment{FedAvg aggregation}
-    \State Evaluate $\text{MAE}(w_{t+1})$ on full dataset
-\EndFor
-\end{algorithmic}
-\end{algorithm}
-
-The convergence plot demonstrates the global MAE decreasing over successive communication rounds, confirming that the federated protocol successfully aggregates distributed knowledge.
+where $K$ is the number of clients, $n_k$ the number of samples at client $k$, and $n$ the total number of samples.

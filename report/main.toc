@@ -1,112 +1,55 @@
-\contentsline {chapter}{\numberline {1}Introduction}{6}{chapter.1}%
-\contentsline {section}{\numberline {1.1}Project Overview}{6}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Problem Statement}{6}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Objectives}{7}{section.1.3}%
-\contentsline {section}{\numberline {1.4}Scope and Contributions}{7}{section.1.4}%
-\contentsline {section}{\numberline {1.5}Report Organization}{8}{section.1.5}%
-\contentsline {chapter}{\numberline {2}Literature Review}{10}{chapter.2}%
-\contentsline {section}{\numberline {2.1}IoT Network Simulation}{10}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Machine Learning for Network Security}{10}{section.2.2}%
-\contentsline {subsection}{\numberline {2.2.1}Random Forest for Latency Prediction}{10}{subsection.2.2.1}%
-\contentsline {subsection}{\numberline {2.2.2}One-Class SVM for Anomaly Detection}{11}{subsection.2.2.2}%
-\contentsline {subsection}{\numberline {2.2.3}Generative Adversarial Networks for DDoS Simulation}{11}{subsection.2.2.3}%
-\contentsline {section}{\numberline {2.3}Reinforcement Learning for Network Management}{12}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Federated Learning}{12}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Digital Twin Technology}{13}{section.2.5}%
-\contentsline {section}{\numberline {2.6}Model-to-Code Generation (m2cgen)}{13}{section.2.6}%
-\contentsline {chapter}{\numberline {3}System Architecture}{14}{chapter.3}%
-\contentsline {section}{\numberline {3.1}High-Level Architecture}{14}{section.3.1}%
-\contentsline {section}{\numberline {3.2}The Simulation Layer}{14}{section.3.2}%
-\contentsline {subsection}{\numberline {3.2.1}AnyLogic Agent-Based Model}{14}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {3.2.2}MQTTPacket Data Structure}{15}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Network Flow}{15}{subsection.3.2.3}%
-\contentsline {section}{\numberline {3.3}The Cloud\_Received Processing Hook}{15}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Dataset: RT-IoT2022}{16}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Directory Structure}{16}{section.3.5}%
-\contentsline {chapter}{\numberline {4}Machine Learning Pipeline}{17}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Overview}{17}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Data Preprocessing}{17}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Source Data}{17}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Feature Engineering}{17}{subsection.4.2.2}%
-\contentsline {section}{\numberline {4.3}Model 1: Random Forest Latency Predictor}{18}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}Architecture}{18}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Training Process}{18}{subsection.4.3.2}%
-\contentsline {subsection}{\numberline {4.3.3}Evaluation}{18}{subsection.4.3.3}%
-\contentsline {section}{\numberline {4.4}Model 2: OneClassSVM Anomaly Detector}{19}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}Architecture}{19}{subsection.4.4.1}%
-\contentsline {subsection}{\numberline {4.4.2}Decision Function}{19}{subsection.4.4.2}%
-\contentsline {section}{\numberline {4.5}Model 3: Autoregressive Time-Series Forecaster}{19}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1}Sliding Window Architecture}{19}{subsection.4.5.1}%
-\contentsline {subsection}{\numberline {4.5.2}Real-Time Forecasting}{20}{subsection.4.5.2}%
-\contentsline {section}{\numberline {4.6}m2cgen: AST Transpilation to Java}{20}{section.4.6}%
-\contentsline {subsection}{\numberline {4.6.1}The Zero-Latency Inference Problem}{20}{subsection.4.6.1}%
-\contentsline {subsection}{\numberline {4.6.2}The Transpilation Solution}{21}{subsection.4.6.2}%
-\contentsline {subsection}{\numberline {4.6.3}Generated Java Code Structure}{21}{subsection.4.6.3}%
-\contentsline {subsection}{\numberline {4.6.4}Voting Regressor (Alternative Pipeline)}{22}{subsection.4.6.4}%
-\contentsline {section}{\numberline {4.7}GAN-Based DDoS Traffic Generation}{22}{section.4.7}%
-\contentsline {chapter}{\numberline {5}Reinforcement Learning and Federated Learning}{24}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Tabular Q-Learning Load Balancer}{24}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Motivation}{24}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}State-Action Space Design}{24}{subsection.5.1.2}%
-\contentsline {subsection}{\numberline {5.1.3}Reward Function}{24}{subsection.5.1.3}%
-\contentsline {subsection}{\numberline {5.1.4}Q-Table Update Rule}{25}{subsection.5.1.4}%
-\contentsline {subsection}{\numberline {5.1.5}Implementation}{25}{subsection.5.1.5}%
-\contentsline {subsection}{\numberline {5.1.6}Integration with Simulation}{26}{subsection.5.1.6}%
-\contentsline {section}{\numberline {5.2}Federated Learning Pipeline}{26}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Motivation}{26}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Architecture}{27}{subsection.5.2.2}%
-\contentsline {subsubsection}{Edge Node (\texttt {edge\_node.py})}{27}{subsection.5.2.2}%
-\contentsline {subsubsection}{Cloud Aggregator (\texttt {cloud\_server.py})}{28}{lstnumber.5.3.24}%
-\contentsline {subsection}{\numberline {5.2.3}FedAvg Convergence Simulation}{28}{subsection.5.2.3}%
-\contentsline {chapter}{\numberline {6}Network Operations Center (NOC) Dashboard}{29}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Design Philosophy}{29}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Dashboard Overview}{29}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Dashboard 1: Latency \& Forecasting Hub}{29}{section.6.3}%
-\contentsline {subsection}{\numberline {6.3.1}Panel 1: Live Latency Tracking}{30}{subsection.6.3.1}%
-\contentsline {subsection}{\numberline {6.3.2}Panel 2: Time-Series Forecasting}{30}{subsection.6.3.2}%
-\contentsline {section}{\numberline {6.4}Dashboard 2: Security \& Anomaly Radar}{30}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Dashboard 3: Telemetry \& Error Matrix}{30}{section.6.5}%
-\contentsline {subsection}{\numberline {6.5.1}KPI Panel}{31}{subsection.6.5.1}%
-\contentsline {subsection}{\numberline {6.5.2}Error Distribution Histogram}{31}{subsection.6.5.2}%
-\contentsline {section}{\numberline {6.6}Dashboard 4: Energy Dynamics \& Digital Twin}{31}{section.6.6}%
-\contentsline {subsection}{\numberline {6.6.1}Battery Depletion Curve}{31}{subsection.6.6.1}%
-\contentsline {subsection}{\numberline {6.6.2}Digital Twin Health Radar}{31}{subsection.6.6.2}%
-\contentsline {section}{\numberline {6.7}Screen Layout}{32}{section.6.7}%
-\contentsline {section}{\numberline {6.8}Thread Safety}{32}{section.6.8}%
-\contentsline {chapter}{\numberline {7}Web Analytics Dashboard}{33}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Technology Stack}{33}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Data Ingestion}{33}{section.7.2}%
-\contentsline {section}{\numberline {7.3}UI Components}{34}{section.7.3}%
-\contentsline {subsection}{\numberline {7.3.1}Header and Navigation}{34}{subsection.7.3.1}%
-\contentsline {subsection}{\numberline {7.3.2}KPI Metric Cards}{34}{subsection.7.3.2}%
-\contentsline {subsection}{\numberline {7.3.3}Network Topology Animation}{34}{subsection.7.3.3}%
-\contentsline {subsection}{\numberline {7.3.4}AI Inference Engine Chart}{34}{subsection.7.3.4}%
-\contentsline {subsection}{\numberline {7.3.5}Distribution Charts}{34}{subsection.7.3.5}%
-\contentsline {section}{\numberline {7.4}Design System}{35}{section.7.4}%
-\contentsline {chapter}{\numberline {8}The Injection Engine}{36}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Motivation}{36}{section.8.1}%
-\contentsline {section}{\numberline {8.2}Injection Scripts Overview}{37}{section.8.2}%
-\contentsline {section}{\numberline {8.3}XML Mutation Technique}{37}{section.8.3}%
-\contentsline {section}{\numberline {8.4}Utility Tools}{38}{section.8.4}%
-\contentsline {subsection}{\numberline {8.4.1}patch\_alp.py}{38}{subsection.8.4.1}%
-\contentsline {section}{\numberline {8.5}Reproducibility}{39}{section.8.5}%
-\contentsline {chapter}{\numberline {9}Results and Analysis}{40}{chapter.9}%
-\contentsline {section}{\numberline {9.1}Model Training Results}{40}{section.9.1}%
-\contentsline {subsection}{\numberline {9.1.1}Random Forest Latency Predictor}{40}{subsection.9.1.1}%
-\contentsline {subsection}{\numberline {9.1.2}OneClassSVM Anomaly Detector}{40}{subsection.9.1.2}%
-\contentsline {subsection}{\numberline {9.1.3}Time-Series Forecaster}{41}{subsection.9.1.3}%
-\contentsline {section}{\numberline {9.2}Reinforcement Learning Analysis}{41}{section.9.2}%
-\contentsline {subsection}{\numberline {9.2.1}Q-Table Convergence}{41}{subsection.9.2.1}%
-\contentsline {section}{\numberline {9.3}Federated Learning Convergence}{42}{section.9.3}%
-\contentsline {section}{\numberline {9.4}GAN DDoS Detection Results}{42}{section.9.4}%
-\contentsline {section}{\numberline {9.5}Digital Twin Health Metrics}{42}{section.9.5}%
-\contentsline {section}{\numberline {9.6}Performance Benchmarks}{43}{section.9.6}%
-\contentsline {chapter}{\numberline {10}Conclusion and Future Work}{44}{chapter.10}%
-\contentsline {section}{\numberline {10.1}Summary of Achievements}{44}{section.10.1}%
-\contentsline {section}{\numberline {10.2}Key Technical Innovations}{45}{section.10.2}%
-\contentsline {subsection}{\numberline {10.2.1}AST Transpilation for Zero-Latency ML}{45}{subsection.10.2.1}%
-\contentsline {subsection}{\numberline {10.2.2}Decoupled Multi-Window NOC}{45}{subsection.10.2.2}%
-\contentsline {subsection}{\numberline {10.2.3}Infrastructure-as-Code for Simulation}{45}{subsection.10.2.3}%
-\contentsline {section}{\numberline {10.3}Limitations}{45}{section.10.3}%
-\contentsline {section}{\numberline {10.4}Future Work}{46}{section.10.4}%
-\contentsline {section}{\numberline {10.5}Final Remarks}{46}{section.10.5}%
+\contentsline {chapter}{\numberline {1}Introduction}{3}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Project Overview}{3}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{3}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objectives}{3}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Scope and Contributions}{4}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Report Organization}{4}{section.1.5}%
+\contentsline {chapter}{\numberline {2}Literature Review}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}IoT Simulation and MQTT}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Learning for Prediction and Detection}{5}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Adaptive Control and Distributed Training}{5}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Deployment in JVM-Based Simulations}{6}{section.2.4}%
+\contentsline {chapter}{\numberline {3}System Architecture}{7}{chapter.3}%
+\contentsline {section}{\numberline {3.1}High-Level Architecture}{7}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Simulation Model}{7}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Processing Pipeline}{8}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Dataset}{8}{section.3.4}%
+\contentsline {chapter}{\numberline {4}Machine Learning Pipeline}{9}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Overview}{9}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Data and Features}{9}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Models Deployed}{9}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Evaluation Metric}{10}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Deployment Rationale}{10}{section.4.5}%
+\contentsline {chapter}{\numberline {5}Reinforcement \& Federated Learning}{11}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Tabular Q-Learning Load Balancer}{11}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Motivation}{11}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}State--Action Design}{11}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Reward and Update Rule}{11}{subsection.5.1.3}%
+\contentsline {subsection}{\numberline {5.1.4}Integration}{12}{subsection.5.1.4}%
+\contentsline {section}{\numberline {5.2}Federated Learning Pipeline}{12}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Motivation}{12}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}FedAvg Summary}{12}{subsection.5.2.2}%
+\contentsline {chapter}{\numberline {6}NOC Dashboard}{13}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Design Philosophy}{13}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Dashboard Overview}{13}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Thread Safety and Performance}{13}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Dashboard Screenshots}{13}{section.6.4}%
+\contentsline {chapter}{\numberline {7}Web Analytics Dashboard}{19}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Technology Stack}{19}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Data Ingestion}{19}{section.7.2}%
+\contentsline {section}{\numberline {7.3}UI Summary}{19}{section.7.3}%
+\contentsline {chapter}{\numberline {8}The Injection Engine}{20}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Motivation}{20}{section.8.1}%
+\contentsline {section}{\numberline {8.2}What Gets Injected}{20}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Script Inventory}{20}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Reproducibility}{21}{section.8.4}%
+\contentsline {chapter}{\numberline {9}Results and Analysis}{22}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Model Outcomes}{22}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Reinforcement Learning Behavior}{22}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Federated Learning Convergence}{22}{section.9.3}%
+\contentsline {section}{\numberline {9.4}Performance Benchmarks}{23}{section.9.4}%
+\contentsline {chapter}{\numberline {10}Conclusion and Future Work}{24}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Conclusion}{24}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Key Outcomes}{24}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Limitations}{24}{section.10.3}%
+\contentsline {subsection}{\numberline {10.3.1}Future Work}{24}{subsection.10.3.1}%

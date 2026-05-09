@@ -5,7 +5,7 @@
 
 \section{Technology Stack}
 
-The web dashboard is a modern single-page application (SPA) built with:
+The web dashboard is implemented as a single-page application (SPA) intended for lightweight, cross-platform analysis of exported simulation telemetry.
 
 \begin{table}[H]
 \centering
@@ -15,88 +15,26 @@ The web dashboard is a modern single-page application (SPA) built with:
 \toprule
 \textbf{Technology} & \textbf{Role} \\
 \midrule
-React 18 & Component-based UI framework for declarative rendering \\
-Vite 6.x & Next-generation build tool with Hot Module Replacement (HMR) \\
-Tailwind CSS & Utility-first CSS framework for rapid styling \\
-Recharts & Composable charting library for React (AreaChart, ScatterChart) \\
-Framer Motion & Animation library for smooth micro-interactions \\
-Lucide React & Icon library for clean, consistent iconography \\
+React & Component-based UI for composing interactive views \\
+Vite & Fast development server and production bundling \\
+Tailwind CSS & Utility-first styling for consistent layout and spacing \\
+Recharts & Charting primitives for time-series and distribution plots \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \section{Data Ingestion}
 
-The dashboard consumes the simulation's telemetry export via a static JSON file:
+The dashboard consumes telemetry exported by the simulation as a static JSON artifact. Each record contains packet-level fields such as packet size, inter-arrival time, and observed flow duration. This approach keeps the web layer decoupled from the simulator while enabling repeatable analysis.
 
-\begin{lstlisting}[caption={Data Fetching Logic (App.jsx)}]
-useEffect(() => {
-    fetch('/data/mqtt_ready.json')
-      .then(res => res.json())
-      .then(json => {
-        // JSON envelope: { generatedAt, rowCount, rows }
-        const rows = json.rows || json;
-        setData(rows);
-        setLoading(false);
-      });
-}, []);
-\end{lstlisting}
+\section{UI Summary}
 
-The JSON envelope contains metadata (\texttt{generatedAt}, \texttt{rowCount}) and the complete array of 4,132 packet records with camelCase field names (\texttt{flowDuration}, \texttt{packetSize}, \texttt{interArrival}).
-
-\section{UI Components}
-
-\subsection{Header and Navigation}
-
-The header displays the platform name, a live ``Neural Network Subsystem Active'' indicator with a pulsing green dot, and the current AI model status badge (``VotingRegressor: ONLINE'').
-
-\subsection{KPI Metric Cards}
-
-Four metric cards display aggregate statistics:
+The UI is organized around a small number of operator-focused views:
 \begin{itemize}
-    \item \textbf{Total Packets:} 4,132 (from dataset)
-    \item \textbf{Average Latency:} Computed as $\bar{y} = \frac{1}{n}\sum_{i} \text{flowDuration}_i$
-    \item \textbf{AI Confidence:} 94.2\% (simulated from prediction accuracy)
-    \item \textbf{Network Load:} Status indicator based on throughput
+    \item \textbf{KPI tiles} summarizing packet counts and aggregate latency statistics.
+    \item \textbf{Time-series charts} comparing observed latency against model estimates and short-horizon forecasts.
+    \item \textbf{Distribution plots} for identifying skew and outliers.
+    \item \textbf{Topology view} representing the sensor--gateway--cloud path for contextual interpretation.
 \end{itemize}
 
-\subsection{Network Topology Animation}
-
-A custom animated topology visualization renders the three-tier IoT architecture:
-\begin{enumerate}
-    \item \textbf{IoT Sensor Array} — Green node with Activity icon
-    \item \textbf{Edge Gateway} — Purple node with Server icon
-    \item \textbf{Cloud ML Engine} — Blue node with CPU icon
-\end{enumerate}
-
-Animated particles (using Framer Motion) flow between nodes to represent live packet transmission, creating a visually engaging representation of the network topology.
-
-\subsection{AI Inference Engine Chart}
-
-An AreaChart from Recharts displays the last 100 packets comparing actual latency (cyan gradient fill) against AI-predicted latency (purple dashed line with gradient fill). Prediction error is simulated as $\hat{y} = y \times (0.95 + \mathcal{U}(0, 0.1))$.
-
-\subsection{Distribution Charts}
-
-Two bottom-panel charts provide additional analytics:
-\begin{itemize}
-    \item \textbf{Latency Distribution:} Step-type AreaChart showing the temporal evolution of flow duration values over the last 200 packets.
-    \item \textbf{Packet Size vs.\ Latency:} ScatterChart mapping the correlation between packet size and observed latency, enabling visual identification of outlier clusters.
-\end{itemize}
-
-\section{Design System}
-
-The dashboard uses a dark, glassmorphic design system with the following CSS custom properties:
-
-\begin{lstlisting}[caption={Design System Variables}]
-:root {
-    --bg: #050a18;
-    --surface: rgba(15, 23, 55, 0.6);
-    --accent: #7c5cff;
-    --accent2: #22d3ee;
-    --good: #34d399;
-    --warn: #fbbf24;
-    --danger: #f87171;
-}
-\end{lstlisting}
-
-Glass cards use \texttt{backdrop-filter: blur(16px)} with subtle border highlights, creating a frosted-glass effect that provides depth without sacrificing readability.
+The design goal is clarity: consistent scales, readable labels, and low visual noise so that abnormal behavior is easy to spot.

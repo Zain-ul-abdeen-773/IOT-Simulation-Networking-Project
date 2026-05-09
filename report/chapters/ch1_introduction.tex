@@ -5,40 +5,33 @@
 
 \section{Project Overview}
 
-The rapid expansion of the Internet of Things (IoT) ecosystem has introduced an unprecedented scale of networked devices, generating billions of data packets daily across heterogeneous communication channels. Traditional network simulation environments model these interactions using static heuristics and predefined routing tables, fundamentally limiting their capacity to adapt to real-time anomalies, congestion events, and adversarial intrusions.
+The Internet of Things (IoT) connects large numbers of heterogeneous, resource-constrained devices and produces traffic that is bursty, noisy, and security sensitive. In this setting, simulation is valuable not only for capacity planning, but also for evaluating prediction and control strategies before deployment.
 
-\textbf{Aegis-IoT} is a Neural Network Intelligence Platform that obliterates this paradigm. Built on the AnyLogic discrete-event simulation framework, this platform fuses natively transpiled machine learning kernels with real-time reinforcement learning and federated distributed training to create a self-healing, predictive network topography. The system identifies threats, optimizes traffic loads, and forecasts congestion—all in microseconds, not seconds.
+\textbf{Aegis-IoT} is an AnyLogic-based IoT network simulation augmented with embedded intelligence for (i) latency prediction, (ii) anomaly detection, (iii) short-horizon forecasting, and (iv) adaptive load management. The platform exports telemetry and supports real-time observability through a desktop Network Operations Center (NOC) dashboard and a lightweight web dashboard.
 
 \section{Problem Statement}
 
-Modern IoT networks face three critical challenges that existing simulation platforms fail to address:
-
-\begin{enumerate}[leftmargin=2cm]
-    \item \textbf{Latency Prediction at Scale:} Current IoT simulators lack embedded predictive analytics. Network operators cannot anticipate congestion events before they manifest, resulting in reactive rather than proactive traffic management.
-    
-    \item \textbf{Real-Time Anomaly Detection:} Distributed Denial-of-Service (DDoS) attacks targeting IoT infrastructure exploit the resource-constrained nature of edge devices. Existing defenses rely on centralized, post-hoc analysis rather than inline, microsecond-scale threat neutralization.
-    
-    \item \textbf{Privacy-Preserving Intelligence:} Centralizing raw IoT telemetry data for model training violates data sovereignty principles and introduces single points of failure. A decentralized learning paradigm is essential.
-\end{enumerate}
+Many IoT simulations remain primarily descriptive: they replay traffic but do not close the loop with inline analytics and control. This limits the ability to:
+\begin{itemize}
+    \item anticipate congestion (predictive latency estimation),
+    \item flag abnormal traffic patterns quickly (inline anomaly scoring), and
+    \item evaluate privacy-preserving learning setups (distributed training without raw data centralization).
+\end{itemize}
 
 \section{Objectives}
 
-The primary objectives of this project are:
-
-\begin{itemize}[leftmargin=2cm]
-    \item Design and implement a high-fidelity IoT network simulation using AnyLogic's agent-based discrete-event engine with MQTT protocol modeling.
-    \item Train and deploy machine learning models (Random Forest, OneClassSVM, Autoregressive Forecaster) for real-time latency prediction, anomaly detection, and time-series forecasting.
-    \item Eliminate Python runtime dependencies by transpiling trained models into native Java bytecode using the \texttt{m2cgen} framework for zero-latency inference.
-    \item Implement a Tabular Q-Learning reinforcement learning agent for autonomous, adaptive load balancing within the simulation loop.
-    \item Develop a Federated Learning pipeline implementing the FedAvg algorithm for privacy-preserving, distributed model training across simulated edge nodes.
-    \item Simulate adversarial GAN-based DDoS traffic to stress-test the anomaly detection pipeline.
-    \item Build a decoupled, four-monitor Network Operations Center (NOC) using hardware-accelerated Java Swing for real-time telemetry visualization.
-    \item Develop a modern React/Vite web dashboard for cross-platform analytics and network topography mapping.
-\end{itemize}
+The project objectives are to:
+\begin{enumerate}
+    \item model MQTT-style packet flows using an agent-based discrete-event simulation,
+    \item train and deploy models for latency prediction, anomaly detection, and short-horizon forecasting,
+    \item integrate a tabular Q-learning policy for adaptive congestion control,
+    \item prototype a FedAvg-style federated learning loop across simulated edge nodes, and
+    \item provide real-time visualization and offline analysis via desktop and web dashboards.
+\end{enumerate}
 
 \section{Scope and Contributions}
 
-This project makes the following technical contributions:
+Table~\ref{tab:contributions} summarizes the main deliverables of the project.
 
 \begin{table}[H]
 \centering
@@ -48,35 +41,17 @@ This project makes the following technical contributions:
 \toprule
 \textbf{Contribution} & \textbf{Description} \\
 \midrule
-AST Transpilation & Compilation of Python ML models into native Java decision trees via \texttt{m2cgen}, achieving sub-millisecond inference inside the AnyLogic JVM. \\
-\addlinespace
-RL Load Balancing & Implementation of a Tabular Q-Learning agent (\texttt{QTableBalancer.java}) with discrete state-action spaces for autonomous congestion management. \\
-\addlinespace
-Federated Learning & End-to-end FedAvg pipeline with SGD edge nodes and cloud-based weight aggregation, preserving data privacy. \\
-\addlinespace
-GAN DDoS Simulation & Adversarial traffic injection engine generating synthetic volumetric DDoS packets to validate the OneClassSVM radar. \\
-\addlinespace
-4-Window NOC & Decoupled Java Swing dashboards with hardware-accelerated Java2D rendering for real-time telemetry. \\
-\addlinespace
-Digital Twin & Composite virtual node health scoring combining battery depletion modeling and anomaly density tracking. \\
-\addlinespace
-Web Analytics & React/Vite frontend with Recharts and Framer Motion for cross-platform network visualization. \\
+Simulation core & AnyLogic model of an IoT sensor--gateway--cloud path with MQTT-like packet flows and structured telemetry. \\
+Embedded prediction & Supervised models for latency estimation and short-horizon forecasting integrated into the simulation loop. \\
+Anomaly detection & Unsupervised novelty scoring for highlighting abnormal traffic consistent with DDoS-style behavior. \\
+Adaptive control & Tabular Q-learning policy that adjusts processing behavior based on congestion state. \\
+Privacy-aware training & Federated learning prototype (FedAvg) demonstrating distributed training without centralizing raw data. \\
+Observability & Desktop NOC dashboards and a web analytics dashboard for time-series, distribution, and status views. \\
+Reproducible tooling & Automated project mutation/injection workflow for repeatable integration of intelligence and UI features. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \section{Report Organization}
 
-This report is organized as follows:
-
-\begin{itemize}
-    \item \textbf{Chapter 2} reviews the literature on IoT simulation, machine learning for network security, federated learning, and reinforcement learning.
-    \item \textbf{Chapter 3} presents the system architecture, including the AnyLogic agent topology, data flow, and component interactions.
-    \item \textbf{Chapter 4} details the machine learning pipeline: data preprocessing, model training, evaluation, and the \texttt{m2cgen} transpilation process.
-    \item \textbf{Chapter 5} covers the Reinforcement Learning load balancer and the Federated Learning protocol.
-    \item \textbf{Chapter 6} describes the four-window Java Swing NOC dashboard system.
-    \item \textbf{Chapter 7} presents the React/Vite web dashboard architecture.
-    \item \textbf{Chapter 8} explains the injection engine—the Python-based mutation scripts that dynamically patch AnyLogic project files.
-    \item \textbf{Chapter 9} presents experimental results and performance analysis.
-    \item \textbf{Chapter 10} concludes the report with a summary and future work.
-\end{itemize}
+The remainder of this report covers background and related work, system architecture, learning and control methods, visualization and tooling, and experimental results.

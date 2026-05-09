@@ -5,111 +5,35 @@
 
 \section{Motivation}
 
-AnyLogic projects are stored as monolithic XML files (\texttt{.alp}) containing all model definitions, agent configurations, Java class code, and UI parameters. Manually editing these files through the AnyLogic GUI to inject custom Java classes and modify simulation hooks is tedious, error-prone, and not reproducible.
+AnyLogic projects are stored as structured XML artifacts. Manual GUI-based edits to inject custom logic, models, or UI code are time-consuming and difficult to reproduce. To support repeatable experiments, Aegis-IoT includes an automated injection workflow that applies deterministic transformations to the project file.
 
-The Aegis-IoT \textbf{Injection Engine} automates this process through a suite of Python scripts that perform surgical, regex-based modifications on the AnyLogic XML structure. This enables rapid deployment of complex AI and UI features without manual GUI interaction.
+\section{What Gets Injected}
 
-\section{Injection Scripts Overview}
+The injection workflow supports three categories of updates:
+\begin{itemize}
+    \item \textbf{Intelligence components:} integration points for predictors, anomaly scoring, forecasting, and control logic.
+    \item \textbf{Visualization:} desktop dashboard classes and startup initialization.
+    \item \textbf{Simulation tuning:} parameter adjustments for queue capacities and delay expressions.
+\end{itemize}
+
+\section{Script Inventory}
 
 \begin{table}[H]
 \centering
-\caption{Injection Scripts}
+\caption{Injection Scripts (Selected)}
 \label{tab:injection}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
 \toprule
-\textbf{Script} & \textbf{Function} \\
+\textbf{Script} & \textbf{Purpose} \\
 \midrule
-\texttt{inject\_multi\_dashboard.py} & Injects all four dashboard classes (\texttt{LatencyDash}, \texttt{SecurityDash}, \texttt{TelemetryDash}, \texttt{EnergyDash}) into the \texttt{AdditionalClassCode} section and configures the \texttt{StartupCode} for window positioning. \\
-\texttt{inject\_rl\_and\_gan.py} & Injects the \texttt{QTableBalancer} Java class and patches the \texttt{Cloud\_Received} hook with GAN DDoS simulation and RL load balancing logic. \\
-\texttt{inject\_both\_javaclasses.py} & Injects \texttt{OfflineAiPredictor} and \texttt{AnomalyModel} transpiled Java classes into the project's \texttt{JavaClasses} section. \\
-\texttt{inject\_forecaster.py} & Injects the \texttt{FutureForecaster} transpiled Java class for time-series prediction. \\
-\texttt{inject\_offline\_model.py} & Patches the simulation hook to call \texttt{OfflineAiPredictor.score()} for real-time latency prediction. \\
-\texttt{inject\_swing.py} & Legacy single-dashboard injection script (superseded by multi-dashboard). \\
-\texttt{inject\_premium\_ui.py} & Enhanced UI injection with gradient backgrounds and advanced graph rendering. \\
-\texttt{inject\_forecasting\_ui.py} & UI injection for time-series forecasting panels. \\
+inject\_multi\_dashboard.py & Injects the multi-window dashboard implementation and startup initialization. \\
+inject\_rl\_and\_gan.py & Injects RL control logic and stress-traffic behavior used for anomaly validation. \\
+inject\_both\_javaclasses.py & Injects exported Java predictors for latency and anomaly scoring. \\
+inject\_forecaster.py & Injects the exported time-series forecaster implementation. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\section{XML Mutation Technique}
-
-The injection scripts use Python's \texttt{re} (regular expression) module to locate specific XML markers within the \texttt{.alp} file and replace their contents:
-
-\begin{lstlisting}[language=Python, caption={Core XML Mutation Pattern}]
-import re
-
-def inject_multi_dashboard():
-    with open('../FinalCCNProject.alp', 'r',
-              encoding='utf-8') as f:
-        content = f.read()
-
-    # Locate and replace AdditionalClassCode
-    content = re.sub(
-        r'<AdditionalClassCode>.*?'
-        r'</AdditionalClassCode>',
-        multi_ui.strip(),
-        content, flags=re.DOTALL
-    )
-
-    # Locate and replace StartupCode
-    content = re.sub(
-        r'<StartupCode>.*?</StartupCode>',
-        startup.strip(),
-        content, flags=re.DOTALL
-    )
-
-    # Fix method signatures
-    content = content.replace(
-        "telDash.addData(agent.flow_duration, pred, "
-        "anomalyScore, agent.packet_size);",
-        "telDash.addData(agent.flow_duration, pred, "
-        "anomalyScore);"
-    )
-
-    with open('../FinalCCNProject.alp', 'w',
-              encoding='utf-8') as f:
-        f.write(content)
-\end{lstlisting}
-
-\section{Utility Tools}
-
-\subsection{patch\_alp.py}
-
-The \texttt{patch\_alp.py} utility in the \texttt{/tools} directory performs two critical simulation tuning operations:
-
-\begin{enumerate}
-    \item \textbf{Delay Normalization:} Divides the packet processing delay expression by 1000.0 to convert from unrealistically large values (minutes) to realistic values (seconds).
-    \item \textbf{Buffer Expansion:} Increases the \texttt{MQTT\_Buffer} queue capacity from 100 to 1,000,000 to prevent overflow during high-throughput simulations.
-\end{enumerate}
-
-\begin{lstlisting}[language=Python, caption={Delay and Capacity Patch}]
-# Normalize delay expression
-content = re.sub(
-    r'agent\.packet_size \* 0\.045 \+ '
-    r'agent\.inter_arrival \* 0\.0012 \+\s*10\.5',
-    '(agent.packet_size * 0.045 + '
-    'agent.inter_arrival * 0.0012 + 10.5) / 1000.0',
-    content
-)
-
-# Expand buffer capacity
-content = re.sub(
-    r'<Code><!\[CDATA\[100\]\]></Code>',
-    '<Code><![CDATA[1000000]]></Code>',
-    content
-)
-\end{lstlisting}
-
 \section{Reproducibility}
 
-The injection engine ensures complete reproducibility of the AI-enhanced simulation. Starting from a clean AnyLogic project, the entire intelligence suite can be deployed by executing the injection scripts in sequence:
-
-\begin{lstlisting}[language=bash, caption={Full Deployment Sequence}]
-cd injection_scripts
-python inject_both_javaclasses.py
-python inject_forecaster.py
-python inject_rl_and_gan.py
-python inject_multi_dashboard.py
-\end{lstlisting}
-
-This approach treats the simulation enhancement as infrastructure-as-code, enabling version-controlled, auditable modifications to the AnyLogic project.
+Treating the simulation enhancement as a scripted transformation makes experiments auditable and repeatable. Given a clean base model, the same injection sequence produces a consistent, fully instrumented AnyLogic project suitable for evaluation and demonstration.

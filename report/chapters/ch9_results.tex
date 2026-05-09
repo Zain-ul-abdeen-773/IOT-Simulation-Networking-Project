@@ -3,166 +3,62 @@
 % ============================================================
 \chapter{Results and Analysis}
 
-\section{Model Training Results}
+This section summarizes key outcomes observed in the simulation-based evaluation.
 
-\subsection{Random Forest Latency Predictor}
-
-The Random Forest Regressor was trained on 3,305 samples (80\% of 4,132 records) and evaluated on 827 test samples. Table~\ref{tab:rf_results} summarizes the performance:
+\section{Model Outcomes}
 
 \begin{table}[H]
 \centering
-\caption{Random Forest Latency Prediction Results}
-\label{tab:rf_results}
-\begin{tabular}{@{}ll@{}}
+\caption{Summary of Model Outcomes}
+\label{tab:model_outcomes}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
 \toprule
-\textbf{Metric} & \textbf{Value} \\
+\textbf{Component} & \textbf{Setup} & \textbf{Outcome} \\
 \midrule
-Training Samples & 3,305 \\
-Test Samples & 827 \\
-Mean Absolute Error (MAE) & $< 1.0$ ms \\
-Number of Estimators & 10 \\
-Maximum Tree Depth & 10 \\
-Transpiled Java Lines & 19,216 \\
-Inference Latency (Java) & $< 1$ ms \\
+Latency predictor & Random Forest trained on RT-IoT2022-derived features & Low MAE with stable real-time inference \\
+Anomaly detector & One-Class SVM novelty scoring on packet-level features & Consistent flagging of injected outliers with controlled false positives \\
+Forecaster & Sliding-window regressor over recent latency history & Short-horizon trend estimates for proactive monitoring \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-The low MAE confirms that the Random Forest effectively captures the non-linear relationship between packet size, inter-arrival time, and flow duration. The transpiled Java implementation achieves sub-millisecond inference, validating the m2cgen approach for real-time deployment.
+\section{Reinforcement Learning Behavior}
 
-\subsection{OneClassSVM Anomaly Detector}
-
-The OneClassSVM was trained on the full dataset of 4,132 normal traffic samples with $\nu = 0.05$. During simulation, the model correctly identifies GAN-injected DDoS packets (which have packet sizes $\sim$15,000 and flow durations $\sim$150ms) as anomalous while maintaining a low false positive rate on legitimate MQTT traffic.
+Across runs, the learned policy tended to prefer more aggressive processing in low congestion and more conservative actions in high/critical congestion, reflecting the reward signal that penalizes large flow durations.
 
 \begin{table}[H]
 \centering
-\caption{OneClassSVM Performance}
-\label{tab:svm_results}
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Training Samples & 4,132 \\
-Feature Dimensions & 3 (packetSize, interArrival, flowDuration) \\
-$\nu$ Parameter & 0.05 \\
-Expected Anomaly Rate & 5\% \\
-GAN DDoS Detection & Positive (all injected packets flagged) \\
-Transpiled Java Lines & 35,549 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Time-Series Forecaster}
-
-The autoregressive forecaster generates 4,119 sliding windows ($4132 - 13$) for training. Performance metrics:
-
-\begin{table}[H]
-\centering
-\caption{Time-Series Forecasting Results}
-\label{tab:forecast_results}
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Window Size & 3 (past latencies) \\
-Forecast Horizon & $t+10$ (10 packets ahead) \\
-Training Windows & 4,119 \\
-Transpiled Java Lines & 285,771 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{Reinforcement Learning Analysis}
-
-\subsection{Q-Table Convergence}
-
-The Q-Learning agent begins with a fully exploratory policy ($\epsilon = 0.2$) and converges toward preferring the ``Accelerate'' action (0.5$\times$ multiplier) in low-congestion states and the ``Maintain'' action (1.0$\times$) in medium states. In high-congestion and critical states, the agent learns to throttle traffic to prevent cascading queue failures.
-
-\begin{table}[H]
-\centering
-\caption{Converged Q-Table Policy (Representative)}
+\caption{Representative Q-Learning Policy Preference}
 \label{tab:qtable}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 \textbf{Action} & \textbf{Low} & \textbf{Medium} & \textbf{High} & \textbf{Critical} \\
 \midrule
-Accelerate (0.5$\times$) & \textbf{Best} & Good & Poor & Poor \\
-Maintain (1.0$\times$) & Good & \textbf{Best} & Good & Poor \\
-Throttle (2.0$\times$) & Poor & Poor & \textbf{Best} & \textbf{Best} \\
+Accelerate ($0.5\times$) & Preferred & Sometimes & Rare & Rare \\
+Maintain ($1.0\times$) & Sometimes & Preferred & Sometimes & Rare \\
+Throttle ($2.0\times$) & Rare & Rare & Preferred & Preferred \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \section{Federated Learning Convergence}
 
-The FedAvg protocol was simulated over 10 communication rounds with 3 edge nodes. Each node trains on approximately 1,377 local samples (one-third of the dataset).
-
-\begin{table}[H]
-\centering
-\caption{FedAvg Convergence Over 10 Rounds}
-\label{tab:fedavg}
-\begin{tabular}{@{}ccc@{}}
-\toprule
-\textbf{Round} & \textbf{Global MAE} & \textbf{Improvement} \\
-\midrule
-1 & High & --- \\
-2 & Moderate & Significant \\
-3 & Lower & Continued \\
-5 & Converging & Steady \\
-10 & Lowest & Plateau \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The convergence plot demonstrates that the global model error monotonically decreases over rounds, confirming successful knowledge aggregation from the distributed edge nodes without any raw data exchange.
-
-\section{GAN DDoS Detection Results}
-
-The GAN injection operates with a 5\% probability per packet. Over a simulation run of 4,132 packets, approximately 207 packets are expected to be mutated into adversarial traffic. The OneClassSVM successfully detects these injections:
-
-\begin{table}[H]
-\centering
-\caption{GAN DDoS Detection Performance}
-\label{tab:gan_results}
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Total Packets & 4,132 \\
-Expected GAN Injections ($p=0.05$) & $\sim$207 \\
-True Positive Rate (DDoS detected) & $>95\%$ \\
-False Positive Rate (normal flagged) & $\sim$5\% (controlled by $\nu$) \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{Digital Twin Health Metrics}
-
-The Digital Twin composite health score provides a holistic view of node viability. Starting from $H = 100\%$, the score degrades as battery depletes and anomaly density increases. Key observations:
-
-\begin{itemize}
-    \item Under normal operation (no DDoS), health degrades gradually following the battery curve.
-    \item During DDoS injection phases, the anomaly density spike causes a rapid health drop, even when battery remains adequate.
-    \item The exponential moving average ($\alpha = 0.05$) smooths transient anomaly spikes while preserving trend information.
-\end{itemize}
+In the federated prototype, the global model error decreased across communication rounds, indicating successful aggregation of distributed updates without sharing raw samples.
 
 \section{Performance Benchmarks}
 
 \begin{table}[H]
 \centering
-\caption{System Performance Benchmarks}
+\caption{System Performance Benchmarks (Representative)}
 \label{tab:benchmarks}
-\begin{tabular}{@{}llll@{}}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
 \toprule
-\textbf{Component} & \textbf{Metric} & \textbf{Value} & \textbf{Method} \\
+\textbf{Component} & \textbf{Metric} & \textbf{Observation} \\
 \midrule
-RF Inference & Latency & $<1$ ms & Native Java \\
-SVM Inference & Latency & $<1$ ms & Native Java \\
-Forecaster Inference & Latency & $<1$ ms & Native Java \\
-RL Decision & Latency & $<0.1$ ms & HashMap lookup \\
-Dashboard Render & Frame Rate & 60 FPS & Java2D HW accel \\
-Web Dashboard & Load Time & $<2$ s & Vite HMR \\
-Full Pipeline & Per-packet & $<5$ ms & End-to-end \\
+Embedded inference & Per-packet prediction latency & Sub-millisecond class-model execution inside the JVM \\
+RL decision & Action selection overhead & Negligible compared to packet processing \\
+Desktop dashboards & UI responsiveness & Stable when using fixed-size sliding windows \\
+Web dashboard & Load/interaction & Lightweight analysis over exported telemetry \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}

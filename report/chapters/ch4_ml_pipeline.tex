@@ -5,244 +5,48 @@
 
 \section{Overview}
 
-The Aegis-IoT ML pipeline follows a three-phase architecture: (1)~offline training in Python using scikit-learn, (2)~Abstract Syntax Tree transpilation to native Java using \texttt{m2cgen}, and (3)~real-time inference execution within the AnyLogic JVM. This chapter details each phase.
+The Aegis-IoT learning pipeline is designed for low-friction experimentation and deployment inside a JVM-based simulator. It follows three phases:
+\begin{enumerate}
+    \item \textbf{Offline training:} models are trained from cleaned telemetry using standard ML tooling (scikit-learn) \cite{sklearn}.
+    \item \textbf{Model export:} classical models are exported to native Java using model-to-code generation \cite{m2cgen}.
+    \item \textbf{In-simulation inference:} exported predictors execute inline during packet processing.
+\end{enumerate}
 
-\section{Data Preprocessing}
+\section{Data and Features}
 
-\subsection{Source Data}
-
-The training data originates from the RT-IoT2022 dataset, preprocessed into \texttt{clean\_mqtt\_traffic.csv} containing 4,132 MQTT flow records. Each record contains:
-
-\begin{lstlisting}[language=Python, caption={CSV Schema}]
-"id","packetSize","interArrival","flowDuration","arrivalTimestamp"
-"0","7.714286","2462430.605522","32.011598","2026-04-25 00:00:02"
-\end{lstlisting}
-
-\subsection{Feature Engineering}
-
-Two feature sets are constructed for different model targets:
-
+Experiments are based on the RT-IoT2022 dataset \cite{rt-iot}, cleaned into 4,132 packet-flow records. Features are derived from packet size, inter-arrival timing, and observed flow duration. Three feature views are used:
 \begin{itemize}
-    \item \textbf{Latency Prediction Features ($\mathbf{X}_{rf}$):} $[\text{packetSize}, \text{interArrival}]$ — 2-dimensional input to the Random Forest regressor.
-    \item \textbf{Anomaly Detection Features ($\mathbf{X}_{svm}$):} $[\text{packetSize}, \text{interArrival}, \text{flowDuration}]$ — 3-dimensional input to the OneClassSVM, requiring the full feature space to characterize normal traffic boundaries.
-    \item \textbf{Forecasting Features ($\mathbf{X}_{ts}$):} Sliding windows of 3 consecutive \texttt{flowDuration} values, predicting the value at $t+10$.
+    \item \textbf{Latency prediction:} packetSize and interArrival.
+    \item \textbf{Anomaly detection:} packetSize, interArrival, and flowDuration.
+    \item \textbf{Forecasting:} sliding windows over recent flowDuration values.
 \end{itemize}
 
-\section{Model 1: Random Forest Latency Predictor}
+\section{Models Deployed}
 
-\subsection{Architecture}
-
-The Random Forest Regressor is configured with the following hyperparameters:
+Table~\ref{tab:model_summary} summarizes the models used in the platform and how they are executed.
 
 \begin{table}[H]
 \centering
-\caption{Random Forest Hyperparameters}
-\label{tab:rf_params}
-\begin{tabular}{@{}ll@{}}
+\caption{Model Summary and Runtime Integration}
+\label{tab:model_summary}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
 \toprule
-\textbf{Parameter} & \textbf{Value} \\
+\textbf{Capability} & \textbf{Model and Inputs} & \textbf{Output} \\
 \midrule
-\texttt{n\_estimators} & 10 \\
-\texttt{max\_depth} & 10 \\
-\texttt{random\_state} & 42 \\
-\texttt{test\_size} & 0.2 \\
+Latency prediction & Random Forest regressor using (packetSize, interArrival) \cite{rf} & Estimated flow duration \\
+Anomaly scoring & One-Class SVM using (packetSize, interArrival, flowDuration) \cite{ocsvm} & Novelty score / flag \\
+Short-horizon forecasting & Autoregressive regressor over recent flowDuration windows & Predicted future latency \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-\subsection{Training Process}
+\section{Evaluation Metric}
 
-\begin{lstlisting}[language=Python, caption={Random Forest Training (train\_both.py)}]
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-
-X_lat = df[["packetSize", "interArrival"]].copy()
-y_lat = df["flowDuration"].copy()
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X_lat, y_lat, test_size=0.2, random_state=42
-)
-
-rf = RandomForestRegressor(n_estimators=10, max_depth=10,
-                           random_state=42)
-rf.fit(X_train, y_train)
-\end{lstlisting}
-
-\subsection{Evaluation}
-
-The model is evaluated using Mean Absolute Error (MAE) on the held-out test set:
-
+For regression tasks, performance is reported using Mean Absolute Error (MAE):
 \begin{equation}
-\text{MAE} = \frac{1}{n}\sum_{i=1}^{n}|y_i - \hat{y}_i|
+\text{MAE} = \frac{1}{n}\sum_{i=1}^{n}\left|y_i - \hat{y}_i\right|
 \end{equation}
 
-\section{Model 2: OneClassSVM Anomaly Detector}
+\section{Deployment Rationale}
 
-\subsection{Architecture}
-
-The OneClassSVM is configured with $\nu = 0.05$, establishing a decision boundary that expects approximately 5\% of the training data to fall outside the normal region:
-
-\begin{lstlisting}[language=Python, caption={OneClassSVM Training}]
-from sklearn.svm import OneClassSVM
-
-X_anom = df[["packetSize", "interArrival",
-             "flowDuration"]].copy()
-ocsvm = OneClassSVM(nu=0.05)
-ocsvm.fit(X_anom)
-\end{lstlisting}
-
-\subsection{Decision Function}
-
-The OneClassSVM's \texttt{score} method returns a signed distance from the decision boundary. Negative scores indicate anomalous observations:
-
-\begin{equation}
-f(x) = \text{sgn}\left(\sum_{i} \alpha_i K(x_i, x) - \rho\right)
-\end{equation}
-
-In the Aegis-IoT pipeline, any packet with $\text{anomalyScore} < 0$ is flagged as a potential DDoS intrusion and visualized as a red marker on the Security Radar.
-
-\section{Model 3: Autoregressive Time-Series Forecaster}
-
-\subsection{Sliding Window Architecture}
-
-The forecaster uses a sliding window of 3 consecutive latency measurements to predict the latency 10 time steps into the future:
-
-\begin{lstlisting}[language=Python, caption={Forecaster Training (train\_forecaster.py)}]
-latencies = df['flowDuration'].values
-X, y = [], []
-
-for i in range(len(latencies) - 13):
-    window = latencies[i:i+3]
-    target = latencies[i+13]  # 10 steps ahead
-    X.append(window)
-    y.append(target)
-
-rf_forecast = RandomForestRegressor(
-    n_estimators=10, max_depth=10, random_state=42
-)
-rf_forecast.fit(X_train, y_train)
-\end{lstlisting}
-
-\subsection{Real-Time Forecasting}
-
-During simulation execution, the forecaster is invoked when the latency history buffer contains at least 3 entries. The last 3 actual latencies form the input window:
-
-\begin{lstlisting}[language=Java, caption={Forecasting Hook in Cloud\_Received}]
-if (latDash.actualLatencies.size() >= 3) {
-    int s = latDash.actualLatencies.size();
-    double[] window = new double[]{
-        latDash.actualLatencies.get(s-3),
-        latDash.actualLatencies.get(s-2),
-        latDash.actualLatencies.get(s-1)
-    };
-    double futureLatency = FutureForecaster.score(window);
-    latDash.addForecast(futureLatency);
-}
-\end{lstlisting}
-
-\section{m2cgen: AST Transpilation to Java}
-
-\subsection{The Zero-Latency Inference Problem}
-
-Traditional ML deployment strategies involve serializing trained models (e.g., using \texttt{joblib} or \texttt{pickle}), loading them into a Python runtime, and exposing predictions via REST APIs or socket-based inter-process communication (IPC). This architecture introduces three sources of latency:
-
-\begin{enumerate}
-    \item \textbf{Serialization/Deserialization:} Converting model parameters between binary formats adds 1--10ms per call.
-    \item \textbf{IPC Overhead:} Socket communication between the JVM and Python runtime adds 5--50ms per prediction.
-    \item \textbf{GIL Contention:} Python's Global Interpreter Lock prevents true parallel inference under multi-threaded workloads.
-\end{enumerate}
-
-\subsection{The Transpilation Solution}
-
-The \texttt{m2cgen} framework eliminates all three latency sources by transpiling the model's Abstract Syntax Tree (AST) directly into native Java source code:
-
-\begin{lstlisting}[language=Python, caption={m2cgen Export Process}]
-import m2cgen as m2c
-
-# Export Random Forest to Java
-rf_java = m2c.export_to_java(rf,
-    class_name="OfflineAiPredictor")
-with open("OfflineAiPredictor.java", "w") as f:
-    f.write("package finalccnproject;\n\n" + rf_java)
-
-# Export OneClassSVM to Java
-ocsvm_java = m2c.export_to_java(ocsvm,
-    class_name="AnomalyModel")
-with open("AnomalyModel.java", "w") as f:
-    f.write("package finalccnproject;\n\n" + ocsvm_java)
-\end{lstlisting}
-
-\subsection{Generated Java Code Structure}
-
-The transpiled \texttt{OfflineAiPredictor.java} file contains 19,216 lines of pure Java code. Each of the 10 Random Forest estimators is represented as a deeply nested \texttt{if-else} tree. The final prediction is computed as:
-
-\begin{equation}
-\hat{y} = \frac{1}{T}\sum_{t=1}^{T} h_t(\mathbf{x})
-\end{equation}
-
-where $T=10$ is the number of trees and $h_t(\mathbf{x})$ is the prediction of tree $t$. A representative excerpt:
-
-\begin{lstlisting}[language=Java, caption={Transpiled Decision Tree (excerpt)}]
-public class OfflineAiPredictor {
-    public static double score(double[] input) {
-        double var0;
-        if (input[1] <= 2928742.375) {
-            if (input[1] <= 1466804.5625) {
-                if (input[1] <= 854061.3125) {
-                    var0 = 2.141209;
-                } else {
-                    var0 = 3.936286;
-                }
-            } // ... 19,000+ lines of decision logic
-        }
-        // Average across all 10 trees
-        return (var0 + var1 + ... + var9) / 10.0;
-    }
-}
-\end{lstlisting}
-
-This pure Java implementation executes as native JVM bytecode with zero external dependencies, achieving sub-millisecond inference latency.
-
-\subsection{Voting Regressor (Alternative Pipeline)}
-
-An alternative training pipeline (\texttt{train\_latency\_voting\_regressor.py}) implements a Voting Regressor ensemble combining three heterogeneous base models:
-
-\begin{enumerate}
-    \item \textbf{Linear Regression:} Captures linear relationships between features and latency.
-    \item \textbf{SVR (Support Vector Regression):} Models non-linear relationships using RBF kernels, wrapped in a \texttt{StandardScaler} pipeline.
-    \item \textbf{AdaBoost with Decision Trees:} Boosted ensemble of depth-4 trees for capturing complex feature interactions.
-\end{enumerate}
-
-\begin{lstlisting}[language=Python, caption={Voting Regressor Configuration}]
-voting_regressor = VotingRegressor(
-    estimators=[
-        ("linear_regression", LinearRegression()),
-        ("scaled_svr", make_pipeline(
-            StandardScaler(), SVR())),
-        ("adaboost_tree", AdaBoostRegressor(
-            estimator=DecisionTreeRegressor(max_depth=4),
-            n_estimators=50))
-    ]
-)
-\end{lstlisting}
-
-\section{GAN-Based DDoS Traffic Generation}
-
-To validate the anomaly detection pipeline, a synthetic DDoS traffic generator (\texttt{generate\_ddos.py}) creates 500 adversarial packets:
-
-\begin{lstlisting}[language=Python, caption={GAN-Inspired DDoS Generator}]
-# Volumetric DDoS: massive packets, micro-burst timing
-sizes = np.random.normal(loc=15000, scale=2000, size=500)
-arrivals = np.random.exponential(scale=10.0, size=500)
-durations = np.random.normal(loc=150.0, scale=30.0, size=500)
-\end{lstlisting}
-
-During simulation runtime, the GAN injection operates inline within the \texttt{Cloud\_Received} hook with a 5\% probability:
-
-\begin{lstlisting}[language=Java, caption={Runtime GAN Injection}]
-if (Math.random() < 0.05) {
-    agent.packet_size = 15000 + Math.random() * 5000;
-    agent.inter_arrival = Math.random() * 5;
-    agent.flow_duration = 150.0 + Math.random() * 50;
-}
-\end{lstlisting}
+Exporting models into Java source enables in-process inference inside AnyLogic without external services, serialization steps, or cross-language RPC overhead. This keeps experiments reproducible and reduces engineering complexity for the simulation runtime.

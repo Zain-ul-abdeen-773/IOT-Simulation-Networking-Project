@@ -1,13 +1,11 @@
 % ============================================================
 %  CHAPTER 6 — VISUALIZATION: NOC DASHBOARD SYSTEM
 % ============================================================
-\chapter{Network Operations Center (NOC) Dashboard}
+\chapter{NOC Dashboard}
 
 \section{Design Philosophy}
 
-Traditional simulation reporting relies on monolithic, single-window dashboards that attempt to display all metrics simultaneously. This approach introduces two critical problems: (1)~UI rendering bottlenecks that steal CPU cycles from the simulation engine, and (2)~information overload that reduces operator situational awareness.
-
-Aegis-IoT adopts a \textbf{decoupled, multi-window NOC architecture} where each dashboard executes as an independent Java Swing \texttt{JFrame} on its own thread pool. The dashboards communicate with the simulation core through thread-safe \texttt{SwingUtilities.invokeLater()} calls, ensuring zero contention with the discrete-event engine.
+The simulator exposes live telemetry through a decoupled, multi-window Network Operations Center (NOC). Instead of a single monolithic UI, each dashboard focuses on a specific operator task (latency, security, system health, and energy/twin indicators). This reduces information overload and limits rendering overhead on the simulation engine.
 
 \section{Dashboard Overview}
 
@@ -17,135 +15,60 @@ Aegis-IoT adopts a \textbf{decoupled, multi-window NOC architecture} where each 
 \label{tab:dashboards}
 \begin{tabularx}{\textwidth}{@{}llX@{}}
 \toprule
-\textbf{Window} & \textbf{Class} & \textbf{Visualizations} \\
+\textbf{Window} & \textbf{Class} & \textbf{Primary Content} \\
 \midrule
-Latency Hub & \texttt{LatencyDash} & Real-time actual vs.\ predicted latency line chart; t+10 autoregressive forecast curve \\
-Security Radar & \texttt{SecurityDash} & 2D scatter plot (packet size vs.\ latency) with anomaly highlighting; OneClassSVM decision boundary \\
-Telemetry Matrix & \texttt{TelemetryDash} & Live KPI counters (packets, anomalies, MAE); error distribution histogram \\
-Energy \& Twin & \texttt{EnergyDash} & Battery depletion curve (100\% to 0\%); Digital Twin health radar with composite scoring \\
+Latency Hub & LatencyDash & Actual vs. predicted latency trends; short-horizon forecast curve \\
+Security Radar & SecurityDash & Packet feature scatter with anomaly highlighting for rapid triage \\
+Telemetry Matrix & TelemetryDash & KPI counters and error distribution summaries \\
+Energy \& Twin & EnergyDash & Battery depletion trend and composite health indicator \\
+Report & ReportDash & Aggregated AI model summaries and consolidated experiment reports \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\section{Dashboard 1: Latency \& Forecasting Hub}
+\section{Thread Safety and Performance}
 
-The Latency Hub displays two panels in a vertical split layout:
+Dashboards are updated asynchronously to avoid blocking the discrete-event engine. UI updates are marshaled onto the Swing Event Dispatch Thread, while data collection remains in the simulation loop. To keep performance stable over long runs, charts operate on sliding windows (fixed recent history) rather than unbounded series.
 
-\subsection{Panel 1: Live Latency Tracking}
+\section{Dashboard Screenshots}
 
-This panel renders a dual-line chart comparing actual flow durations (cyan) against AI-predicted values (magenta). The chart maintains a sliding window of the last 150 packets to prevent memory accumulation.
+The following screenshots capture the live NOC windows and the premium/report dashboard.
 
-Key rendering details:
-\begin{itemize}
-    \item Anti-aliased rendering via \texttt{RenderingHints.VALUE\_ANTIALIAS\_ON}
-    \item Dynamic Y-axis scaling: $\text{maxVal} \times 1.2$ for headroom
-    \item Grid overlay with 5 horizontal reference lines
-    \item 3px stroke width with round caps and joins for smooth curves
-\end{itemize}
-
-\subsection{Panel 2: Time-Series Forecasting}
-
-This panel visualizes the autoregressive t+10 forecaster output in neon green. The forecasted values represent the model's prediction of network latency 10 packets into the future, enabling proactive congestion avoidance.
-
-\section{Dashboard 2: Security \& Anomaly Radar}
-
-The Security Radar provides a spatial visualization of the OneClassSVM decision landscape:
-
-\begin{itemize}
-    \item \textbf{Normal packets} are rendered as small cyan dots (4px radius, 120 alpha)
-    \item \textbf{Anomalous packets} ($\text{score} < 0$) are rendered as large red circles (10px radius) with white outlines
-    \item The X-axis maps packet size; the Y-axis maps flow duration
-    \item A 5$\times$5 grid overlay provides spatial reference
-\end{itemize}
-
-This visualization allows operators to immediately identify DDoS clusters—groups of anomalous packets that cluster in the high-size, low-arrival-time region of the feature space.
-
-\section{Dashboard 3: Telemetry \& Error Matrix}
-
-The Telemetry Matrix provides aggregate system health metrics in a side-by-side layout:
-
-\subsection{KPI Panel}
-
-Three large-format counters display:
-\begin{enumerate}
-    \item \textbf{Total Packets Processed} (cyan) — Running count of all packets through the Cloud sink
-    \item \textbf{GAN Anomalies Blocked} (red) — Count of packets flagged by the OneClassSVM
-    \item \textbf{Global MAE} (magenta) — Running mean absolute error: $\text{MAE} = \frac{\sum|y_i - \hat{y}_i|}{n}$
-\end{enumerate}
-
-\subsection{Error Distribution Histogram}
-
-The histogram bins the absolute prediction errors into 15 buckets and renders gradient-filled bars from neon magenta to transparent purple. This visualization reveals the error distribution shape—ideally concentrated near zero for a well-performing model.
-
-\section{Dashboard 4: Energy Dynamics \& Digital Twin}
-
-\subsection{Battery Depletion Curve}
-
-The battery panel models IoT device energy consumption using a physics-inspired drain formula:
-
-\begin{equation}
-B_{t+1} = B_t - (0.005 + \text{packetSize} \times 0.00002)
-\end{equation}
-
-where $B_0 = 100\%$. The curve is rendered with color-coded segments:
-\begin{itemize}
-    \item $B > 50\%$: Neon green (healthy)
-    \item $20\% < B \leq 50\%$: Orange (warning)
-    \item $B \leq 20\%$: Red (critical)
-\end{itemize}
-
-The complete battery history is retained (up to 10,000 points) to display the full depletion trajectory from 100\% to 0\%.
-
-\subsection{Digital Twin Health Radar}
-
-The Digital Twin panel computes a composite health score:
-
-\begin{equation}
-H = B_{\text{current}} - (D_{\text{anomaly}} \times 50)
-\end{equation}
-
-where $D_{\text{anomaly}}$ is an exponentially weighted moving average of recent anomaly density:
-
-\begin{equation}
-D_{t+1} = 0.95 \times D_t + 0.05 \times \mathbb{1}[\text{anomalyScore} < 0]
-\end{equation}
-
-The health score is visualized as a pulsing concentric circle whose radius scales linearly with $H$. Two reference rings provide context, and the color transitions from cyan (healthy) through orange (degraded) to red (critical).
-
-\section{Screen Layout}
-
-All four dashboards are positioned in a 2$\times$2 quadrant layout optimized for 1920$\times$1080 displays:
-
-\begin{table}[H]
+\begin{figure}[H]
 \centering
-\caption{Dashboard Screen Positions}
-\label{tab:positions}
-\begin{tabular}{@{}llll@{}}
-\toprule
-\textbf{Dashboard} & \textbf{Position (x, y)} & \textbf{Size} & \textbf{Quadrant} \\
-\midrule
-Latency Hub & (50, 50) & 700$\times$450 & Top-Left \\
-Security Radar & (770, 50) & 700$\times$450 & Top-Right \\
-Energy/Twin & (50, 520) & 700$\times$450 & Bottom-Left \\
-Telemetry Matrix & (770, 520) & 700$\times$450 & Bottom-Right \\
-\bottomrule
-\end{tabular}
-\end{table}
+\includegraphics[width=0.85\textwidth]{"../screenshots/dash 1.png"}
+\caption{LatencyDash}
+\label{fig:dash_latency}
+\end{figure}
+\clearpage
 
-\section{Thread Safety}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{"../screenshots/dash 2.png"}
+\caption{SecurityDash}
+\label{fig:dash_security}
+\end{figure}
+\clearpage
 
-All dashboard data updates are marshaled onto the Swing Event Dispatch Thread (EDT) using \texttt{SwingUtilities.invokeLater()}, preventing race conditions between the simulation engine and the UI rendering pipeline:
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{"../screenshots/dash 3.png"}
+\caption{TelemetryDash}
+\label{fig:dash_telemetry}
+\end{figure}
+\clearpage
 
-\begin{lstlisting}[language=Java, caption={Thread-Safe Dashboard Update}]
-public void addData(double actual, double predicted) {
-    javax.swing.SwingUtilities.invokeLater(() -> {
-        actualLatencies.add(actual);
-        predictedLatencies.add(predicted);
-        if (actualLatencies.size() > 1000) {
-            actualLatencies.remove(0);
-            predictedLatencies.remove(0);
-        }
-        repaint();
-    });
-}
-\end{lstlisting}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{"../screenshots/dash 4.png"}
+\caption{EnergyDash}
+\label{fig:dash_energy}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{"../screenshots/dash 5.png"}
+\caption{ReportDash}
+\label{fig:dash_report}
+\end{figure}
