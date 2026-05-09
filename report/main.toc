@@ -33,7 +33,12 @@
 \contentsline {section}{\numberline {6.1}Design Philosophy}{13}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Dashboard Overview}{13}{section.6.2}%
 \contentsline {section}{\numberline {6.3}Thread Safety and Performance}{13}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Dashboard Screenshots}{13}{section.6.4}%
+\contentsline {section}{\numberline {6.4}Dashboard Screenshots}{14}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Dashboard 1: Latency \& Forecasting Hub}{14}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}Dashboard 2: Security \& Anomaly Radar}{15}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.3}Dashboard 3: Telemetry Matrix}{16}{subsection.6.4.3}%
+\contentsline {subsection}{\numberline {6.4.4}Dashboard 4: Battery Drain \& Digital Twin}{17}{subsection.6.4.4}%
+\contentsline {subsection}{\numberline {6.4.5}Dashboard 5: Operations Summary \& Live Event Log}{18}{subsection.6.4.5}%
 \contentsline {chapter}{\numberline {7}Web Analytics Dashboard}{19}{chapter.7}%
 \contentsline {section}{\numberline {7.1}Technology Stack}{19}{section.7.1}%
 \contentsline {section}{\numberline {7.2}Data Ingestion}{19}{section.7.2}%

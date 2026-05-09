@@ -3,6 +3,8 @@
 % ============================================================
 \chapter{NOC Dashboard}
 
+This chapter presents the Network Operations Center (NOC) windows used for real-time monitoring and analysis. Each dashboard screenshot below is paired with a concise description that explains its purpose and key visual elements.
+
 \section{Design Philosophy}
 
 The simulator exposes live telemetry through a decoupled, multi-window Network Operations Center (NOC). Instead of a single monolithic UI, each dashboard focuses on a specific operator task (latency, security, system health, and energy/twin indicators). This reduces information overload and limits rendering overhead on the simulation engine.
@@ -32,43 +34,83 @@ Dashboards are updated asynchronously to avoid blocking the discrete-event engin
 
 \section{Dashboard Screenshots}
 
-The following screenshots capture the live NOC windows and the premium/report dashboard.
+The following five windows illustrate the primary operator views. Each subsection below provides a short description followed by the corresponding screenshot and a concise caption.
+
+\subsection{Dashboard 1: Latency \& Forecasting Hub}
+
+Description: This dashboard visualizes the temporal performance and predictive capabilities of the network simulation.
+
+\textbf{Live Latency Tracking:} The top chart compares the actual network latency against the AI-predicted latency in real-time. It utilizes a Random Forest model (transpiled via m2cgen) to estimate current latency, showing a tight mapping during normal operations and occasional divergence during high-volatility spikes.
+
+\textbf{Time-Series Forecasting:} The bottom chart utilizes a Bidirectional LSTM (BiLSTM) forecaster to predict future latency trends (t+10 steps ahead). This provides a forward-looking view to proactively anticipate network congestion or degradation before it impacts operations.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.85\textwidth]{"../screenshots/dash 1.png"}
-\caption{LatencyDash}
+\caption{Real-Time Latency Tracking and Time-Series Forecasting using Random Forest and BiLSTM Architectures.}
 \label{fig:dash_latency}
 \end{figure}
 \clearpage
 
+\subsection{Dashboard 2: Security \& Anomaly Radar}
+
+Description: This module acts as the primary intrusion detection mechanism, focusing on identifying malicious or abnormal network flows.
+
+\textbf{Defense Radar:} The scatter plot maps network packets based on two key features: Packet Size (bytes) on the x-axis and Flow Duration (ms) on the y-axis.
+
+\textbf{Classification:} Powered by a One-Class Support Vector Machine (SVM), the system clusters normal operational traffic (marked in blue) typically characterized by smaller packet sizes and lower durations. Outliers—representing potential threats like DDoS packets or data exfiltration attempts—are isolated and flagged as anomalies (marked with large red indicators).
+
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.85\textwidth]{"../screenshots/dash 2.png"}
-\caption{SecurityDash}
+\caption{Unsupervised Anomaly Detection of Network Traffic via One-Class SVM.}
 \label{fig:dash_security}
 \end{figure}
 \clearpage
 
+\subsection{Dashboard 3: Telemetry Matrix}
+
+Description: This interface provides a deep dive into the inner workings of the active AI models and the simulation's adversarial environment.
+
+\textbf{Advanced AI Core:} The left panel tracks the Reinforcement Learning (Q-Learning) agent's reward stability and policy optimization, indicating how well the agent is adapting to network conditions. It also monitors a generative adversarial network (GAN) actively synthesizing simulated DDoS attacks, creating a dynamic threat environment. Additionally, it logs the synchronization pulses of a simulated Federated Learning setup (currently at Local Round 5).
+
+\textbf{Prediction Error Distribution:} The right panel displays a histogram of the Mean Absolute Error (MAE) for the Random Forest latency predictions. The heavy concentration on the left indicates that the vast majority of predictions have an error close to 0ms, demonstrating high model accuracy.
+
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.85\textwidth]{"../screenshots/dash 3.png"}
-\caption{TelemetryDash}
+\caption{Advanced AI Core Telemetry: Reinforcement Learning, GAN DDoS Synthesis, and Error Distribution.}
 \label{fig:dash_telemetry}
 \end{figure}
 \clearpage
 
+\subsection{Dashboard 4: Battery Drain \& Digital Twin}
+
+Description: This dashboard tracks the simulated physical state of an IoT node or network device.
+
+\textbf{Battery Drain Simulation:} The line graph illustrates the simulated energy depletion of the device over time. The color gradient (green to yellow to red) visually alerts the operator as the battery life drops to a critical 11.1\%, reflecting the computational toll of running continuous AI models and processing network traffic.
+
+\textbf{Digital Twin Health Index:} A composite metric currently sitting at a critical 6.2\%. This radar visual calculates the overall operational health of the node by aggregating the physical battery state with the network anomaly density, providing a single glance at the node's survivability.
+
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.85\textwidth]{"../screenshots/dash 4.png"}
-\caption{EnergyDash}
+\caption{Energy Simulation and Composite Health Index of the Network Node Digital Twin.}
 \label{fig:dash_energy}
 \end{figure}
 \clearpage
 
+\subsection{Dashboard 5: Operations Summary \& Live Event Log}
+
+Description: This screen serves as the executive summary and terminal output for the entire network simulation.
+
+\textbf{Operations Summary:} Quantifies the simulation's overall performance. It highlights that out of 1,047 packets processed, 119 anomalies were detected, resulting in an 11.37\% anomaly rate. It also logs the deployment of 55 GAN-injected attacks and tracks the corresponding 1,047 Q-Learning actions taken by the RL agent to mitigate them.
+
+\textbf{Live Event Log:} A chronological terminal readout detailing every system action. It logs routine latency processing, flags specific anomalous packets, records the exact moments of GAN DDoS injections, and notes when the RL agent applies an optimization action, providing a highly granular audit trail of the simulated environment.
+
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{"../screenshots/dash 5.png"}
-\caption{ReportDash}
+\caption{Comprehensive System Summary and Real-Time Event Logging.}
 \label{fig:dash_report}
 \end{figure}
