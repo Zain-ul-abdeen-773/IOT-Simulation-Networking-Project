@@ -22,6 +22,8 @@ Forecaster & Sliding-window regressor over recent latency history & Short-horizo
 \end{tabularx}
 \end{table}
 
+Beyond the summary table, a closer inspection of model diagnostics reveals two important behaviors. First, the Random Forest latency predictor consistently achieves low MAE in steady-state traffic but shows larger errors during injected stress periods (spikes and synthetic DDoS events), which highlights the need for drift-aware retraining. Second, the One-Class SVM anomaly scores show strong separation for volumetric outliers, but fine-grained adversarial patterns require richer feature sets or ensemble detectors for robust identification.
+
 \section{Reinforcement Learning Behavior}
 
 Across runs, the learned policy tended to prefer more aggressive processing in low congestion and more conservative actions in high/critical congestion, reflecting the reward signal that penalizes large flow durations.
@@ -43,7 +45,7 @@ Throttle ($2.0\times$) & Rare & Rare & Preferred & Preferred \\
 
 \section{Federated Learning Convergence}
 
-In the federated prototype, the global model error decreased across communication rounds, indicating successful aggregation of distributed updates without sharing raw samples.
+In the federated prototype, the global model error decreased across communication rounds, indicating successful aggregation of distributed updates without sharing raw samples. However, convergence speed varied with client heterogeneity: clients with limited local data (simulated small-edge nodes) contributed noisy updates, suggesting that adaptive client weighting or robust aggregation (e.g., trimmed mean) could improve stability. Experiment logs show that communications rounds 3--7 produced the largest incremental gains, after which marginal improvements diminished under the current training schedule.
 
 \section{Performance Benchmarks}
 

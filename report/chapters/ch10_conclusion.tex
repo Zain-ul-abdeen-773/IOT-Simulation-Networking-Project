@@ -32,4 +32,12 @@ This project demonstrates an end-to-end approach for studying IoT network behavi
     \item Extend the controller from tabular Q-learning to deep RL for continuous or high-dimensional state.
     \item Improve forecasting with sequence models and evaluate robustness to distribution shift.
     \item Add privacy mechanisms (e.g., differential privacy) to the federated learning prototype.
+    \item Explore uncertainty-aware prediction (quantile regression or Bayesian ensembles) to produce confidence bounds for latency estimates.
+    \item Replace tabular Q-learning with deep RL (DQN/actor-critic) to handle richer state representations and continuous action spaces.
+    \item Implement on-device incremental learning for the forecaster (online BiLSTM updates) to adapt to evolving traffic patterns.
+    \item Evaluate different federated aggregation strategies (FedProx, Trimmed Mean) and communication compression (Top-k, QSGD) for noisy clients.
+    \item Integrate differential-privacy techniques (DP-SGD) into FedAvg and benchmark privacy-utility trade-offs.
+    \item Add adversarial robustness experiments: adversarially-trained detectors and GAN-augmented defenses for DDoS patterns.
+    \item Automate model selection and hyperparameter tuning (AutoML) for latency and anomaly models using Bayesian optimization.
+    \item Investigate meta-learning approaches for fast adaptation of predictors across heterogeneous simulated nodes.
 \end{itemize}

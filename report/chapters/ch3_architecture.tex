@@ -9,46 +9,62 @@ The Aegis-IoT platform is organized into a small set of layers that connect simu
 
 \begin{figure}[p]
 \centering
-% Place architecture diagram on a dedicated float page to avoid overlap
-% Scale the architecture diagram to fit text width to avoid node/caption overlap
+% Mermaid-equivalent architecture diagram (TikZ)
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-    node distance=1.2cm and 2cm,
-    layer/.style={rectangle, rounded corners=8pt, draw=#1!60, fill=#1!10, text=black, minimum width=4cm, minimum height=1cm, font=\small\bfseries, line width=1.2pt},
-    comp/.style={rectangle, rounded corners=5pt, draw=gray!60, fill=white, text=black, minimum width=3cm, minimum height=0.8cm, font=\footnotesize},
-    arrow/.style={-{Stealth[length=3mm]}, thick, gray!70},
-    darrow/.style={-{Stealth[length=3mm]}, thick, dashed, gray!50},
+    node distance=1.6cm and 2.5cm,
+    layer/.style={rectangle, rounded corners=6pt, draw=black!30, fill=#1!10, text=black, minimum width=4.2cm, minimum height=1.1cm, font=\small\bfseries},
+    comp/.style={rectangle, rounded corners=4pt, draw=black!40, fill=white, minimum width=2.6cm, minimum height=0.8cm, font=\footnotesize},
+    core/.style={rectangle, rounded corners=6pt, draw=accentPurple!70, fill=accentPurple!8, minimum width=5cm, minimum height=1.2cm, font=\small\bfseries},
+    vis/.style={rectangle, rounded corners=6pt, draw=accentBlue!70, fill=accentBlue!8, minimum width=5cm, minimum height=1.2cm, font=\small\bfseries},
+    arrow/.style={-{Stealth[length=3mm]}, thick, black!70},
+    darrow/.style={-{Stealth[length=3mm]}, thick, dashed, black!50},
 ]
-    % Layer 1: Data Acquisition
-    \node[layer=blue] (L1) {Data Acquisition Layer};
-    \node[comp, below left=0.8cm and 0.5cm of L1] (sensor) {SensorDevice Agents};
-    \node[comp, below=0.8cm of L1] (mqtt) {MQTT Packets};
-    \node[comp, below right=0.8cm and 0.5cm of L1] (gw) {Gateway Nodes};
 
-    % Layer 2: Intelligence Core
-    \node[layer=purple, below=3cm of L1] (L2) {Intelligence Core (JVM)};
-    \node[comp, below left=0.8cm and 1.5cm of L2] (rf) {Latency Predictor};
-    \node[comp, below left=0.8cm and -0.5cm of L2] (svm) {Anomaly Detector};
-    \node[comp, below right=0.8cm and -0.5cm of L2] (ts) {Forecaster};
-    \node[comp, below right=0.8cm and 1.5cm of L2] (rl) {RL Policy};
+    % Data Acquisition Layer
+    \node[layer=blue] (DA) {Data Acquisition Layer};
+    \node[comp, below left=1.2cm and 1.0cm of DA] (SDA) {SensorDevice Agents};
+    \node[comp, below=1.2cm of DA] (MQTT) {MQTT Packets};
+    \node[comp, below right=1.2cm and 1.0cm of DA] (GN) {Gateway Nodes};
 
-    % Layer 3: Visualization
-    \node[layer=teal, below=3cm of L2] (L3) {Visualization Layer};
-    \node[comp, below left=0.8cm and 1cm of L3] (d1) {NOC: Latency};
-    \node[comp, below left=0.8cm and -1cm of L3] (d2) {NOC: Security};
-    \node[comp, below right=0.8cm and -1cm of L3] (d3) {NOC: Telemetry};
-    \node[comp, below right=0.8cm and 1cm of L3] (d4) {NOC: Energy/Twin};
+    % Intelligence Core
+    \node[core, below=4cm of DA] (IC) {Intelligence Core (JVM)};
+    % spread the children wider and increase vertical gap to avoid overlap
+    \node[comp, below=3.0cm of IC, xshift=-8.0cm] (LP) {Latency Predictor};
+    \node[comp, below=3.0cm of IC, xshift=-4.0cm] (AD) {Anomaly Detector};
+    \node[comp, below=3.0cm of IC, xshift=0cm]    (GAN) {GAN DDoS Synthesis};
+    \node[comp, below=3.0cm of IC, xshift=4.0cm]  (TSF) {Time-Series Forecaster};
+    \node[comp, below=3.0cm of IC, xshift=8.0cm]  (RLP) {RL Policy};
 
-    % Arrows
-    \draw[arrow] (sensor) -- (mqtt);
-    \draw[arrow] (mqtt) -- (gw);
-    \draw[arrow] (gw) -- (L2);
-    \draw[arrow] (L2) -- (rf);
-    \draw[arrow] (L2) -- (svm);
-    \draw[arrow] (L2) -- (ts);
-    \draw[arrow] (L2) -- (rl);
-    \draw[darrow] (rl.south) -- ++(0,-0.5) -| (gw);
-    \draw[arrow] (L2) -- (L3);
+    % Visualization Layer
+    \node[vis, below=6.5cm of IC] (VL) {Visualization Layer};
+    % place five NOC nodes with larger horizontal spacing
+    \node[comp, below=3.6cm of VL, xshift=-11.0cm] (NOC1) {NOC: Latency Dashboard\\\small(LatencyDash)};
+    \node[comp, below=3.6cm of VL, xshift=-5.5cm]  (NOC2) {NOC: Security Radar\\\small(SecurityDash)};
+    \node[comp, below=3.6cm of VL, xshift=0cm]     (NOC3) {NOC: Telemetry Matrix\\\small(TelemetryDash)};
+    \node[comp, below=3.6cm of VL, xshift=5.5cm]   (NOC4) {NOC: Energy Digital Twin\\\small(EnergyDash)};
+    \node[comp, below=3.6cm of VL, xshift=11.0cm]  (NOC5) {NOC: Operations \\& Event Log\\\small(ReportDash)};
+    % Web dashboard (React/Vite)
+    \node[comp, right=2.6cm of VL] (WEB) {Web Dashboard\\\small(React/Vite)};
+
+    % Connections
+    \draw[arrow] (SDA) -- (MQTT);
+    \draw[arrow] (MQTT) -- (GN);
+    \draw[arrow] (GN) -- (IC);
+    \draw[arrow] (IC) -- (LP);
+    \draw[arrow] (IC) -- (AD);
+    \draw[arrow] (IC) -- (GAN);
+    \draw[arrow] (IC) -- (TSF);
+    \draw[arrow] (IC) -- (RLP);
+    \draw[darrow] (RLP.south) .. controls +(-6mm,-8mm) and +(-8mm,6mm) .. (GN.west);
+    \draw[arrow] (IC) -- (VL);
+    \draw[arrow] (VL) -- (NOC1);
+    \draw[arrow] (VL) -- (NOC2);
+    \draw[arrow] (VL) -- (NOC3);
+    \draw[arrow] (VL) -- (NOC4);
+    \draw[arrow] (VL) -- (NOC5);
+    \draw[arrow] (IC) -- (WEB);
+
 \end{tikzpicture}%
 }
 \vspace{0.8em}
