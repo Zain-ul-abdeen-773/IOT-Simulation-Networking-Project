@@ -9,13 +9,13 @@ The Aegis-IoT platform is organized into five decoupled layers that connect simu
 
 \begin{figure}[p]
 \centering
-\resizebox{\textwidth}{\dimexpr\textheight-4\baselineskip}{%
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
     node distance=1.4cm and 2.0cm,
     % ---- Layer banners ----
     layerbox/.style={
         rectangle, rounded corners=8pt, draw=#1!60, fill=#1!6,
-        minimum width=21cm, minimum height=1.1cm,
+        minimum width=26cm, minimum height=1.1cm,
         font=\large\bfseries, text=#1!80!black
     },
     % ---- Component nodes ----
@@ -37,13 +37,13 @@ The Aegis-IoT platform is organized into five decoupled layers that connect simu
 % ================================================================
 \node[layerbox=blue] (L1) {Layer 1 \;\textbar\; Data Acquisition};
 
-\node[comp, below=1.6cm of L1, xshift=-7cm] (SENS)
+\node[comp, below=1.6cm of L1, xshift=-8.5cm] (SENS)
     {SensorDevice\\Agents};
-\node[comp, below=1.6cm of L1, xshift=-2cm] (MQTT)
+\node[comp, below=1.6cm of L1, xshift=-2.5cm] (MQTT)
     {MQTTPacket\\Entities};
-\node[comp, below=1.6cm of L1, xshift=3cm] (DS)
+\node[comp, below=1.6cm of L1, xshift=4cm] (DS)
     {RT-IoT2022\\Dataset};
-\node[comp, below=1.6cm of L1, xshift=8cm] (DDOS)
+\node[comp, below=1.6cm of L1, xshift=10cm] (DDOS)
     {GAN-Style DDoS\\Stress Injector};
 
 \draw[arr] (SENS) -- node[above,font=\tiny]{generate} (MQTT);
@@ -56,13 +56,13 @@ The Aegis-IoT platform is organized into five decoupled layers that connect simu
 \node[layerbox=violet, below=4.8cm of L1] (L2)
     {Layer 2 \;\textbar\; Intelligence Core (AnyLogic JVM)};
 
-\node[comp, below=1.8cm of L2, xshift=-8cm] (RF)
+\node[comp, below=1.8cm of L2, xshift=-9.5cm] (RF)
     {OfflineAiPredictor\\{\tiny Random Forest $\to$ Java}\\{\tiny Latency Prediction}};
-\node[comp, below=1.8cm of L2, xshift=-2.7cm] (SVM)
+\node[comp, below=1.8cm of L2, xshift=-3.2cm] (SVM)
     {AnomalyModel\\{\tiny OneClassSVM $\to$ Java}\\{\tiny Novelty Scoring}};
-\node[comp, below=1.8cm of L2, xshift=2.7cm] (FC)
+\node[comp, below=1.8cm of L2, xshift=3.2cm] (FC)
     {FutureForecaster\\{\tiny BiLSTM $\to$ Java}\\{\tiny t+10 Forecast}};
-\node[comp, below=1.8cm of L2, xshift=8cm] (QL)
+\node[comp, below=1.8cm of L2, xshift=9.5cm] (QL)
     {QTableBalancer\\{\tiny Tabular Q-Learning}\\{\tiny Load Balancing}};
 
 % Arrows from MQTT into intelligence
@@ -82,15 +82,15 @@ The Aegis-IoT platform is organized into five decoupled layers that connect simu
     {Layer 3 \;\textbar\; Visualization};
 
 % NOC dashboards — more spread
-\node[comp, below=1.8cm of L3, xshift=-9cm] (D1)
+\node[comp, below=1.8cm of L3, xshift=-10.5cm] (D1)
     {LatencyDash\\{\tiny Actual vs Predicted}};
-\node[comp, below=1.8cm of L3, xshift=-4.5cm] (D2)
+\node[comp, below=1.8cm of L3, xshift=-5.3cm] (D2)
     {SecurityDash\\{\tiny SVM Scatter Radar}};
 \node[comp, below=1.8cm of L3, xshift=0cm] (D3)
     {TelemetryDash\\{\tiny KPIs + Error Hist.}};
-\node[comp, below=1.8cm of L3, xshift=4.5cm] (D4)
+\node[comp, below=1.8cm of L3, xshift=5.3cm] (D4)
     {EnergyDash\\{\tiny Battery + Health}};
-\node[comp, below=1.8cm of L3, xshift=9cm] (D5)
+\node[comp, below=1.8cm of L3, xshift=10.5cm] (D5)
     {ReportDash\\{\tiny Ops Summary + Log}};
 
 % Web dashboard — more gap below NOC row
@@ -112,13 +112,13 @@ The Aegis-IoT platform is organized into five decoupled layers that connect simu
 \node[layerbox=orange, below=16.5cm of L1] (L4)
     {Layer 4 \;\textbar\; Federated Learning Hub};
 
-\node[comp, below=1.8cm of L4, xshift=-6cm] (E1)
+\node[comp, below=1.8cm of L4, xshift=-7.5cm] (E1)
     {Edge Node 0\\{\tiny SGDRegressor}};
-\node[comp, below=1.8cm of L4, xshift=-2cm] (E2)
+\node[comp, below=1.8cm of L4, xshift=-2.5cm] (E2)
     {Edge Node 1\\{\tiny SGDRegressor}};
-\node[comp, below=1.8cm of L4, xshift=2cm] (E3)
+\node[comp, below=1.8cm of L4, xshift=2.5cm] (E3)
     {Edge Node 2\\{\tiny SGDRegressor}};
-\node[comp, below=1.8cm of L4, xshift=7cm] (AGG)
+\node[comp, below=1.8cm of L4, xshift=8.5cm] (AGG)
     {Cloud Aggregator\\{\tiny FedAvg Weighted Average}};
 
 \draw[arr] (E1) -- node[above,font=\tiny]{weights} (AGG);
@@ -143,14 +143,13 @@ The Aegis-IoT platform is organized into five decoupled layers that connect simu
 % ================================================================
 \node[rectangle, rounded corners=5pt, draw=black!25, fill=yellow!5,
       minimum width=3.8cm, minimum height=1.6cm, font=\footnotesize,
-      align=center, right=1.5cm of L2]
+      align=center, overlay, right=0.6cm of L2]
     (INJ) {Injection Engine\\{\tiny Python XML Patchers}\\{\tiny \texttt{injection\_scripts/}}};
 
-\draw[darr] (INJ.west) -- (L2.east);
+\draw[darr, overlay] (INJ.west) -- (L2.east);
 
 \end{tikzpicture}%
 }
-\vspace{0.8em}
 \caption{Complete Aegis-IoT system architecture: five layers from data acquisition through intelligence, visualization, federated learning, and persistence. Dashed arrows indicate asynchronous or offline data paths; red dashed arrows indicate feedback loops.}
 \label{fig:arch}
 \end{figure}

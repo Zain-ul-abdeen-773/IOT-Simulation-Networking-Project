@@ -16,6 +16,42 @@ The injection workflow supports three categories of updates:
     \item \textbf{Simulation tuning:} parameter adjustments for queue capacities and delay expressions.
 \end{itemize}
 
+Figure~\ref{fig:injection_flow} shows the end-to-end injection workflow.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    step/.style={rectangle, rounded corners=6pt, draw=#1!60, fill=#1!8,
+        minimum width=3.0cm, minimum height=1.2cm,
+        font=\small\bfseries, align=center, text=#1!80!black},
+    file/.style={rectangle, rounded corners=3pt, draw=black!30, fill=white,
+        minimum width=2.4cm, minimum height=0.8cm,
+        font=\scriptsize, align=center},
+    arr/.style={-{Stealth[length=3mm]}, thick, black!60},
+]
+% Steps
+\node[step=gray] (ALP) {Base AnyLogic\\Project (.alp)};
+\node[step=orange, right=2.0cm of ALP] (PARSE) {Python Script\\XML Parse};
+\node[step=violet, right=2.0cm of PARSE] (INJECT) {Locate \& Inject\\Java Code Blocks};
+\node[step=teal, right=2.0cm of INJECT] (OUT) {Patched\\Project (.alp)};
+
+% File inputs from below
+\node[file, below=1.0cm of PARSE] (JAVA) {Java classes\\{\tiny .java model files}};
+\node[file, below=1.0cm of INJECT] (TMPL) {Code templates\\{\tiny Dashboard, RL, GAN hooks}};
+
+% Arrows
+\draw[arr] (ALP) -- (PARSE);
+\draw[arr] (PARSE) -- (INJECT);
+\draw[arr] (INJECT) -- (OUT);
+\draw[arr] (JAVA) -- (PARSE);
+\draw[arr] (TMPL) -- (INJECT);
+\end{tikzpicture}%
+}
+\caption{Injection Engine workflow: Python scripts parse the AnyLogic XML project, inject transpiled Java models and dashboard code, and produce a patched simulation ready to run.}
+\label{fig:injection_flow}
+\end{figure}
+
 \section{Script Inventory}
 
 \begin{table}[H]

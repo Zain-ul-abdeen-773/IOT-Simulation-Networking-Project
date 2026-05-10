@@ -12,6 +12,47 @@ The Aegis-IoT learning pipeline is designed for low-friction experimentation and
     \item \textbf{In-simulation inference:} exported predictors execute inline during packet processing.
 \end{enumerate}
 
+Figure~\ref{fig:ml_pipeline} illustrates this three-phase workflow.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    phase/.style={rectangle, rounded corners=6pt, draw=#1!60, fill=#1!8,
+        minimum width=4.0cm, minimum height=1.6cm,
+        font=\small\bfseries, align=center, text=#1!80!black},
+    detail/.style={rectangle, rounded corners=4pt, draw=black!25, fill=white,
+        minimum width=3.6cm, minimum height=0.7cm,
+        font=\scriptsize, align=center},
+    arr/.style={-{Stealth[length=3mm]}, thick, black!60},
+]
+% Phase boxes
+\node[phase=blue] (P1) {Phase 1\\Offline Training};
+\node[phase=violet, right=3.0cm of P1] (P2) {Phase 2\\Model Export};
+\node[phase=teal, right=3.0cm of P2] (P3) {Phase 3\\In-Simulation Inference};
+
+% Detail boxes below
+\node[detail, below=0.6cm of P1] (D1a) {scikit-learn (Python)};
+\node[detail, below=0.3cm of D1a] (D1b) {RT-IoT2022 dataset};
+\node[detail, below=0.6cm of P2] (D2a) {m2cgen transpiler};
+\node[detail, below=0.3cm of D2a] (D2b) {\texttt{.py} $\to$ \texttt{.java}};
+\node[detail, below=0.6cm of P3] (D3a) {AnyLogic JVM runtime};
+\node[detail, below=0.3cm of D3a] (D3b) {Zero-dependency inference};
+
+% Arrows
+\draw[arr] (P1) -- node[above, font=\scriptsize]{.pkl models} (P2);
+\draw[arr] (P2) -- node[above, font=\scriptsize]{.java classes} (P3);
+
+% Output labels
+\node[below=0.3cm of D1b, font=\tiny\itshape, text=black!50] {Random Forest, SVM, BiLSTM};
+\node[below=0.3cm of D2b, font=\tiny\itshape, text=black!50] {Pure Java source code};
+\node[below=0.3cm of D3b, font=\tiny\itshape, text=black!50] {Sub-ms per-packet scoring};
+\end{tikzpicture}%
+}
+\caption{Three-phase ML pipeline: offline training in Python, model export to Java via m2cgen, and zero-dependency inference inside the AnyLogic JVM.}
+\label{fig:ml_pipeline}
+\end{figure}
+
 \section{Data and Features}
 
 Experiments are based on the RT-IoT2022 dataset \cite{rt-iot}, cleaned into 4,132 packet-flow records. Features are derived from packet size, inter-arrival timing, and observed flow duration. Three feature views are used:

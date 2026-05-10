@@ -49,7 +49,26 @@ Q(s, a) \leftarrow Q(s, a) + \alpha \left[r + \gamma \max_{a'} Q(s', a') - Q(s, 
 
 \subsection{Integration}
 
-During packet processing, the simulation estimates a congestion state, selects an action using an $\epsilon$-greedy policy, applies the multiplier, and updates the Q-table. This provides a closed feedback loop between observed performance and future control choices.
+During packet processing, the simulation estimates a congestion state, selects an action using an $\epsilon$-greedy policy, applies the multiplier, and updates the Q-table. Figure~\ref{fig:rl_loop} illustrates this closed feedback loop.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    block/.style={rectangle, rounded corners=6pt, draw=violet!60, fill=violet!8,
+        minimum width=3.2cm, minimum height=1.2cm,
+        font=\small\bfseries, align=center, text=violet!80!black},
+    arr/.style={-{Stealth[length=3mm]}, thick, black!60},
+]
+\node[block] (ENV) {Simulation\\Environment};
+\node[block, right=4.0cm of ENV] (AGT) {QTableBalancer\\Agent};
+
+\draw[arr] (ENV.north east) -- ++(0,0.8) -| node[above, pos=0.25, font=\scriptsize]{state $s$ (queue depth)} (AGT.north west);
+\draw[arr] (AGT.south west) -- ++(0,-0.8) -| node[below, pos=0.25, font=\scriptsize]{action $a$ (delay multiplier)} (ENV.south east);
+\draw[arr, dashed, red!50!black] (ENV.east) -- node[above, font=\scriptsize, text=red!60!black]{reward $r = -$flowDuration} (AGT.west);
+\end{tikzpicture}
+\caption{Closed-loop reinforcement learning: the simulation provides state and reward signals to the QTableBalancer, which selects a delay multiplier action applied to packet processing.}
+\label{fig:rl_loop}
+\end{figure}
 
 \section{Federated Learning Pipeline}
 
@@ -66,6 +85,44 @@ The platform prototypes Federated Averaging (FedAvg) \cite{fedavg} in a simplifi
     \item nodes upload model updates (not raw records), and
     \item the cloud aggregates updates to form the next global model.
 \end{enumerate}
+
+Figure~\ref{fig:fedavg_round} visualizes a single communication round.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    cloud/.style={rectangle, rounded corners=6pt, draw=orange!60, fill=orange!8,
+        minimum width=4.5cm, minimum height=1.4cm,
+        font=\small\bfseries, align=center, text=orange!80!black},
+    edge/.style={rectangle, rounded corners=5pt, draw=blue!50, fill=blue!6,
+        minimum width=2.8cm, minimum height=1.0cm,
+        font=\scriptsize\bfseries, align=center, text=blue!80!black},
+    arr/.style={-{Stealth[length=2.8mm]}, thick, black!60},
+    feed/.style={-{Stealth[length=2.8mm]}, thick, dashed, red!50!black},
+]
+% Cloud aggregator
+\node[cloud] (CLD) {Cloud Aggregator\\{\tiny FedAvg: weighted average}};
+
+% Edge nodes
+\node[edge, below left=2.5cm and 4cm of CLD] (E0) {Edge Node 0\\{\tiny Local SGD}};
+\node[edge, below=2.5cm of CLD] (E1) {Edge Node 1\\{\tiny Local SGD}};
+\node[edge, below right=2.5cm and 4cm of CLD] (E2) {Edge Node 2\\{\tiny Local SGD}};
+
+% Upload arrows
+\draw[arr] (E0.north) -- node[left, font=\tiny, pos=0.4]{$w_0$} (CLD.south west);
+\draw[arr] (E1.north) -- node[right, font=\tiny, pos=0.4]{$w_1$} (CLD.south);
+\draw[arr] (E2.north) -- node[right, font=\tiny, pos=0.4]{$w_2$} (CLD.south east);
+
+% Broadcast arrows (dashed red, going back down)
+\draw[feed] (CLD.south west) ++(-.3,0) -- ++(-0.8,-1.0) node[left, font=\tiny, text=red!60!black, pos=0.5]{$w_{\text{global}}$} |- (E0.east);
+\draw[feed] (CLD.south east) ++(.3,0) -- ++(0.8,-1.0) node[right, font=\tiny, text=red!60!black, pos=0.5]{$w_{\text{global}}$} |- (E2.west);
+
+% Round label
+\node[above=0.3cm of CLD, font=\scriptsize\itshape, text=black!50] {One communication round};
+\end{tikzpicture}
+\caption{FedAvg communication round: edge nodes train locally on private data partitions, upload model weights to the cloud aggregator, and receive the updated global model.}
+\label{fig:fedavg_round}
+\end{figure}
 
 The aggregation step can be expressed as:
 \begin{equation}
