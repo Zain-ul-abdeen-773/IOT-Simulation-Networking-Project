@@ -73,3 +73,7 @@ w_{t+1} = \sum_{k=1}^{K} \frac{n_k}{n} w_{t+1}^{k}
 \end{equation}
 
 where $K$ is the number of clients, $n_k$ the number of samples at client $k$, and $n$ the total number of samples.
+
+\subsection{Prototype Configuration}
+
+The current prototype simulates $K=3$ edge nodes, each holding a disjoint partition of the cleaned MQTT dataset. Local models are \texttt{SGDRegressor} instances trained for 5 local epochs per round. Aggregation runs for 10 communication rounds. Although this is a simplified setting, it demonstrates that the global model's error decreases monotonically across rounds, validating the FedAvg workflow without requiring raw data to leave the simulated edge.

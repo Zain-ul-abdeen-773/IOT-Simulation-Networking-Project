@@ -33,9 +33,9 @@ Table~\ref{tab:model_summary} summarizes the models used in the platform and how
 \toprule
 \textbf{Capability} & \textbf{Model and Inputs} & \textbf{Output} \\
 \midrule
-Latency prediction & Random Forest regressor using (packetSize, interArrival) \cite{rf} & Estimated flow duration \\
-Anomaly scoring & One-Class SVM using (packetSize, interArrival, flowDuration) \cite{ocsvm} & Novelty score / flag \\
-Short-horizon forecasting & Autoregressive regressor over recent flowDuration windows & Predicted future latency \\
+Latency prediction & Random Forest regressor (\texttt{OfflineAiPredictor}) using (packetSize, interArrival) \cite{rf} & Estimated flow duration \\
+Anomaly scoring & One-Class SVM (\texttt{AnomalyModel}) using (packetSize, interArrival, flowDuration) \cite{ocsvm} & Novelty score / flag \\
+Short-horizon forecasting & BiLSTM forecaster over recent flowDuration windows, predicting t+10 & Predicted future latency \\
 \bottomrule
 \end{tabularx}
 \end{table}

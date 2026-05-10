@@ -34,4 +34,7 @@ inject\_forecaster.py & Injects the exported time-series forecaster implementati
 \end{tabularx}
 \end{table}
 
-% Reproducibility section intentionally omitted per report requirements.
+\section{Reproducibility}
+
+All injection scripts are idempotent: running them multiple times on the same \texttt{.alp} file produces identical output. The scripts parse the XML tree, locate the target \texttt{<EmbeddedObject>} nodes, and insert or replace \texttt{<javaCode>} blocks using deterministic string templates. This ensures that any team member can rebuild the complete simulation from the base AnyLogic project and the \texttt{injection\_scripts/} directory without manual GUI interaction.
+

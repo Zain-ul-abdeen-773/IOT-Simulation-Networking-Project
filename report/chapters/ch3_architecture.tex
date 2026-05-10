@@ -5,76 +5,159 @@
 
 \section{High-Level Architecture}
 
-The Aegis-IoT platform is organized into a small set of layers that connect simulation, intelligence, and observability. Figure~\ref{fig:arch} summarizes the main components and data flow.
+The Aegis-IoT platform is organized into five decoupled layers that connect simulation, intelligence, observability, distributed learning, and persistence. Figure~\ref{fig:arch} presents the complete system architecture and data-flow paths.
 
 \begin{figure}[p]
 \centering
-% Mermaid-equivalent architecture diagram (TikZ)
-\resizebox{\textwidth}{!}{%
+\resizebox{\textwidth}{\dimexpr\textheight-4\baselineskip}{%
 \begin{tikzpicture}[
-    node distance=1.6cm and 2.5cm,
-    layer/.style={rectangle, rounded corners=6pt, draw=black!30, fill=#1!10, text=black, minimum width=4.2cm, minimum height=1.1cm, font=\small\bfseries},
-    comp/.style={rectangle, rounded corners=4pt, draw=black!40, fill=white, minimum width=2.6cm, minimum height=0.8cm, font=\footnotesize},
-    core/.style={rectangle, rounded corners=6pt, draw=accentPurple!70, fill=accentPurple!8, minimum width=5cm, minimum height=1.2cm, font=\small\bfseries},
-    vis/.style={rectangle, rounded corners=6pt, draw=accentBlue!70, fill=accentBlue!8, minimum width=5cm, minimum height=1.2cm, font=\small\bfseries},
-    arrow/.style={-{Stealth[length=3mm]}, thick, black!70},
-    darrow/.style={-{Stealth[length=3mm]}, thick, dashed, black!50},
+    node distance=1.4cm and 2.0cm,
+    % ---- Layer banners ----
+    layerbox/.style={
+        rectangle, rounded corners=8pt, draw=#1!60, fill=#1!6,
+        minimum width=21cm, minimum height=1.1cm,
+        font=\large\bfseries, text=#1!80!black
+    },
+    % ---- Component nodes ----
+    comp/.style={
+        rectangle, rounded corners=5pt,
+        draw=black!35, fill=white,
+        minimum width=3.2cm, minimum height=1.0cm,
+        font=\footnotesize, align=center,
+        inner sep=5pt
+    },
+    % ---- Arrows ----
+    arr/.style  ={-{Stealth[length=2.6mm]}, thick, black!65},
+    darr/.style ={-{Stealth[length=2.6mm]}, thick, dashed, black!45},
+    feed/.style ={-{Stealth[length=2.4mm]}, thick, dashed, red!50!black},
 ]
 
-    % Data Acquisition Layer
-    \node[layer=blue] (DA) {Data Acquisition Layer};
-    \node[comp, below left=1.2cm and 1.0cm of DA] (SDA) {SensorDevice Agents};
-    \node[comp, below=1.2cm of DA] (MQTT) {MQTT Packets};
-    \node[comp, below right=1.2cm and 1.0cm of DA] (GN) {Gateway Nodes};
+% ================================================================
+%  LAYER 1 — DATA ACQUISITION
+% ================================================================
+\node[layerbox=blue] (L1) {Layer 1 \;\textbar\; Data Acquisition};
 
-    % Intelligence Core
-    \node[core, below=4cm of DA] (IC) {Intelligence Core (JVM)};
-    % spread the children wider and increase vertical gap to avoid overlap
-    \node[comp, below=3.0cm of IC, xshift=-8.0cm] (LP) {Latency Predictor};
-    \node[comp, below=3.0cm of IC, xshift=-4.0cm] (AD) {Anomaly Detector};
-    \node[comp, below=3.0cm of IC, xshift=0cm]    (GAN) {GAN DDoS Synthesis};
-    \node[comp, below=3.0cm of IC, xshift=4.0cm]  (TSF) {Time-Series Forecaster};
-    \node[comp, below=3.0cm of IC, xshift=8.0cm]  (RLP) {RL Policy};
+\node[comp, below=1.6cm of L1, xshift=-7cm] (SENS)
+    {SensorDevice\\Agents};
+\node[comp, below=1.6cm of L1, xshift=-2cm] (MQTT)
+    {MQTTPacket\\Entities};
+\node[comp, below=1.6cm of L1, xshift=3cm] (DS)
+    {RT-IoT2022\\Dataset};
+\node[comp, below=1.6cm of L1, xshift=8cm] (DDOS)
+    {GAN-Style DDoS\\Stress Injector};
 
-    % Visualization Layer
-    \node[vis, below=6.5cm of IC] (VL) {Visualization Layer};
-    % place five NOC nodes with larger horizontal spacing
-    \node[comp, below=3.6cm of VL, xshift=-11.0cm] (NOC1) {NOC: Latency Dashboard\\\small(LatencyDash)};
-    \node[comp, below=3.6cm of VL, xshift=-5.5cm]  (NOC2) {NOC: Security Radar\\\small(SecurityDash)};
-    \node[comp, below=3.6cm of VL, xshift=0cm]     (NOC3) {NOC: Telemetry Matrix\\\small(TelemetryDash)};
-    \node[comp, below=3.6cm of VL, xshift=5.5cm]   (NOC4) {NOC: Energy Digital Twin\\\small(EnergyDash)};
-    \node[comp, below=3.6cm of VL, xshift=11.0cm]  (NOC5) {NOC: Operations \\& Event Log\\\small(ReportDash)};
-    % Web dashboard (React/Vite)
-    \node[comp, right=2.6cm of VL] (WEB) {Web Dashboard\\\small(React/Vite)};
+\draw[arr] (SENS) -- node[above,font=\tiny]{generate} (MQTT);
+\draw[arr] (DS)   -- node[above,font=\tiny]{calibrate} (SENS);
+\draw[darr] (DDOS) -- node[above,font=\tiny]{5\% mutate} (MQTT);
 
-    % Connections
-    \draw[arrow] (SDA) -- (MQTT);
-    \draw[arrow] (MQTT) -- (GN);
-    \draw[arrow] (GN) -- (IC);
-    \draw[arrow] (IC) -- (LP);
-    \draw[arrow] (IC) -- (AD);
-    \draw[arrow] (IC) -- (GAN);
-    \draw[arrow] (IC) -- (TSF);
-    \draw[arrow] (IC) -- (RLP);
-    \draw[darrow] (RLP.south) .. controls +(-6mm,-8mm) and +(-8mm,6mm) .. (GN.west);
-    \draw[arrow] (IC) -- (VL);
-    \draw[arrow] (VL) -- (NOC1);
-    \draw[arrow] (VL) -- (NOC2);
-    \draw[arrow] (VL) -- (NOC3);
-    \draw[arrow] (VL) -- (NOC4);
-    \draw[arrow] (VL) -- (NOC5);
-    \draw[arrow] (IC) -- (WEB);
+% ================================================================
+%  LAYER 2 — INTELLIGENCE CORE  (more vertical gap)
+% ================================================================
+\node[layerbox=violet, below=4.8cm of L1] (L2)
+    {Layer 2 \;\textbar\; Intelligence Core (AnyLogic JVM)};
+
+\node[comp, below=1.8cm of L2, xshift=-8cm] (RF)
+    {OfflineAiPredictor\\{\tiny Random Forest $\to$ Java}\\{\tiny Latency Prediction}};
+\node[comp, below=1.8cm of L2, xshift=-2.7cm] (SVM)
+    {AnomalyModel\\{\tiny OneClassSVM $\to$ Java}\\{\tiny Novelty Scoring}};
+\node[comp, below=1.8cm of L2, xshift=2.7cm] (FC)
+    {FutureForecaster\\{\tiny BiLSTM $\to$ Java}\\{\tiny t+10 Forecast}};
+\node[comp, below=1.8cm of L2, xshift=8cm] (QL)
+    {QTableBalancer\\{\tiny Tabular Q-Learning}\\{\tiny Load Balancing}};
+
+% Arrows from MQTT into intelligence
+\draw[arr] (MQTT.south) -- ++(0,-0.8) -| (RF.north);
+\draw[arr] (MQTT.south) -- ++(0,-0.8) -| (SVM.north);
+\draw[arr] (MQTT.south) -- ++(0,-0.8) -| (FC.north);
+\draw[arr] (MQTT.south) -- ++(0,-0.8) -| (QL.north);
+
+% RL feedback arrow
+\draw[feed] (QL.north) .. controls +(0,1.2) and +(2.5,1.0) ..
+    node[above,font=\tiny,text=red!60!black]{throttle multiplier} (MQTT.east);
+
+% ================================================================
+%  LAYER 3 — VISUALIZATION  (more vertical gap)
+% ================================================================
+\node[layerbox=teal, below=9.6cm of L1] (L3)
+    {Layer 3 \;\textbar\; Visualization};
+
+% NOC dashboards — more spread
+\node[comp, below=1.8cm of L3, xshift=-9cm] (D1)
+    {LatencyDash\\{\tiny Actual vs Predicted}};
+\node[comp, below=1.8cm of L3, xshift=-4.5cm] (D2)
+    {SecurityDash\\{\tiny SVM Scatter Radar}};
+\node[comp, below=1.8cm of L3, xshift=0cm] (D3)
+    {TelemetryDash\\{\tiny KPIs + Error Hist.}};
+\node[comp, below=1.8cm of L3, xshift=4.5cm] (D4)
+    {EnergyDash\\{\tiny Battery + Health}};
+\node[comp, below=1.8cm of L3, xshift=9cm] (D5)
+    {ReportDash\\{\tiny Ops Summary + Log}};
+
+% Web dashboard — more gap below NOC row
+\node[comp, below=4.2cm of L3, xshift=0cm,
+      draw=teal!60, fill=teal!5] (WEB)
+    {React / Vite Web Dashboard\\{\tiny Static JSON \texttt{mqtt\_ready.json}}};
+
+% Feed from core to dashboards
+\draw[arr] (L2.south) ++(0,-0.4) -- ++(0,-0.8) -| (D1.north);
+\draw[arr] (L2.south) ++(0,-0.4) -- ++(0,-0.8) -| (D2.north);
+\draw[arr] (L2.south) ++(0,-0.4) -- ++(0,-0.8) -| (D3.north);
+\draw[arr] (L2.south) ++(0,-0.4) -- ++(0,-0.8) -| (D4.north);
+\draw[arr] (L2.south) ++(0,-0.4) -- ++(0,-0.8) -| (D5.north);
+\draw[darr] (D3.south) -- node[right,font=\tiny]{JSON export} (WEB.north);
+
+% ================================================================
+%  LAYER 4 — DISTRIBUTED LEARNING HUB  (more vertical gap)
+% ================================================================
+\node[layerbox=orange, below=16.5cm of L1] (L4)
+    {Layer 4 \;\textbar\; Federated Learning Hub};
+
+\node[comp, below=1.8cm of L4, xshift=-6cm] (E1)
+    {Edge Node 0\\{\tiny SGDRegressor}};
+\node[comp, below=1.8cm of L4, xshift=-2cm] (E2)
+    {Edge Node 1\\{\tiny SGDRegressor}};
+\node[comp, below=1.8cm of L4, xshift=2cm] (E3)
+    {Edge Node 2\\{\tiny SGDRegressor}};
+\node[comp, below=1.8cm of L4, xshift=7cm] (AGG)
+    {Cloud Aggregator\\{\tiny FedAvg Weighted Average}};
+
+\draw[arr] (E1) -- node[above,font=\tiny]{weights} (AGG);
+\draw[arr] (E2) -- node[above,font=\tiny]{weights} (AGG);
+\draw[arr] (E3) -- node[above,font=\tiny]{weights} (AGG);
+\draw[feed] (AGG.north) .. controls +(0,2.5) and +(7,0) ..
+    node[right,font=\tiny,text=red!60!black]{global model} (RF.south east);
+
+% ================================================================
+%  LAYER 5 — PERSISTENCE  (more vertical gap)
+% ================================================================
+\node[layerbox=gray, below=20.8cm of L1] (L5)
+    {Layer 5 \;\textbar\; Persistence (HSQLDB)};
+
+\node[comp, below=1.4cm of L5, xshift=0cm] (DB)
+    {database/db.script\\{\tiny Operations log, event records}};
+
+\draw[darr] (D5.south) .. controls +(0,-3.0) and +(-4,1.5) .. (DB.north west);
+
+% ================================================================
+%  INJECTION ENGINE (side annotation)
+% ================================================================
+\node[rectangle, rounded corners=5pt, draw=black!25, fill=yellow!5,
+      minimum width=3.8cm, minimum height=1.6cm, font=\footnotesize,
+      align=center, right=1.5cm of L2]
+    (INJ) {Injection Engine\\{\tiny Python XML Patchers}\\{\tiny \texttt{injection\_scripts/}}};
+
+\draw[darr] (INJ.west) -- (L2.east);
 
 \end{tikzpicture}%
 }
 \vspace{0.8em}
-\caption{Aegis-IoT system architecture from packet generation to intelligence and visualization.}
+\caption{Complete Aegis-IoT system architecture: five layers from data acquisition through intelligence, visualization, federated learning, and persistence. Dashed arrows indicate asynchronous or offline data paths; red dashed arrows indicate feedback loops.}
 \label{fig:arch}
 \end{figure}
 
 \section{Simulation Model}
 
-The simulation is implemented in AnyLogic \cite{anylogic} using an agent-based discrete-event approach. Table~\ref{tab:agents} lists the principal agent types.
+The simulation is implemented in AnyLogic \cite{anylogic} using an agent-based discrete-event approach. Table~\ref{tab:agents} lists the principal agent types. Note that unlike a traditional multi-tier network, the AnyLogic model concentrates intelligence within the \texttt{Main} agent; gateway and cloud routing logic is embedded in the packet-processing hooks injected by the Injection Engine rather than modeled as separate agent classes.
 
 \begin{table}[H]
 \centering
@@ -85,8 +168,8 @@ The simulation is implemented in AnyLogic \cite{anylogic} using an agent-based d
 \textbf{Agent} & \textbf{Role} & \textbf{Count} \\
 \midrule
 SensorDevice & Generates telemetry packets using dataset-derived distributions & Multiple \\
-MQTTPacket & Carries network metrics through the simulated path & Dynamic \\
-Main & Orchestrates execution and hosts the intelligence pipeline & 1 \\
+MQTTPacket & Carries network metrics (\texttt{packetSize}, \texttt{interArrival}, \texttt{flowDuration}) through the simulated path & Dynamic \\
+Main & Orchestrates execution: hosts all four transpiled models, the RL controller, GAN-style stress injection, dashboard windows, and telemetry export & 1 \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -110,13 +193,37 @@ flow\_duration & double & End-to-end flow duration (ms) \\
 
 \section{Processing Pipeline}
 
-When packets reach the cloud sink, the simulation executes a fixed sequence:
+When packets reach the processing sink inside \texttt{Main}, the simulation executes the following sequence:
 \begin{enumerate}
-    \item optional stress-traffic injection to emulate attack-like outliers,
-    \item congestion-aware control decision via the RL policy,
-    \item feature preparation and model inference (prediction, anomaly scoring, forecasting), and
-    \item broadcast of updated telemetry to the visualization layers.
+    \item \textbf{GAN-style stress injection:} with 5\% probability, the packet's features are mutated to emulate volumetric DDoS traffic (large packet size, micro-burst inter-arrival, inflated flow duration). This synthetic adversarial perturbation validates the anomaly detector under attack-like conditions.
+    \item \textbf{RL congestion control:} the \texttt{QTableBalancer} maps the current queue proxy to a discrete state, selects an action (accelerate $0.5\times$, maintain $1.0\times$, or throttle $2.0\times$) via $\epsilon$-greedy policy, applies the multiplier to \texttt{flow\_duration}, and updates the Q-table using the temporal-difference rule.
+    \item \textbf{Model inference:}
+    \begin{itemize}
+        \item \texttt{OfflineAiPredictor.score()} estimates latency from \texttt{(packetSize, interArrival)}.
+        \item \texttt{AnomalyModel.score()} computes a novelty score from \texttt{(packetSize, interArrival, flowDuration)}.
+        \item \texttt{FutureForecaster.score()} predicts latency 10 steps ahead using a BiLSTM-based sliding window over recent flow durations.
+    \end{itemize}
+    \item \textbf{Telemetry broadcast:} updated metrics are pushed to the five NOC dashboard windows and, on export, written as a JSON artifact consumed by the web dashboard.
 \end{enumerate}
+
+\section{Transpiled Model Inventory}
+
+Table~\ref{tab:transpiled} lists all models that are exported to pure Java via \texttt{m2cgen} and executed inline during simulation.
+
+\begin{table}[H]
+\centering
+\caption{Transpiled Java Models (Zero-Dependency Inference)}
+\label{tab:transpiled}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Java Class} & \textbf{Model \& Purpose} & \textbf{Training Script} \\
+\midrule
+OfflineAiPredictor & Random Forest regressor for latency prediction using (packetSize, interArrival) & \texttt{train\_latency\_random\_forest.py} \\
+AnomalyModel & OneClassSVM (RBF kernel) for novelty scoring of DDoS-like traffic & \texttt{test\_m2cgen4.py} \\
+FutureForecaster & BiLSTM for autoregressive t+10 latency forecasting via sliding window & \texttt{train\_forecaster.py} \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{Dataset}
 

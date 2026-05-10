@@ -17,7 +17,7 @@ This section summarizes key outcomes observed in the simulation-based evaluation
 \midrule
 Latency predictor & Random Forest trained on RT-IoT2022-derived features & Low MAE with stable real-time inference \\
 Anomaly detector & One-Class SVM novelty scoring on packet-level features & Consistent flagging of injected outliers with controlled false positives \\
-Forecaster & Sliding-window regressor over recent latency history & Short-horizon trend estimates for proactive monitoring \\
+Forecaster & BiLSTM sliding-window forecaster over recent latency history & Short-horizon trend estimates (t+10) for proactive monitoring \\
 \bottomrule
 \end{tabularx}
 \end{table}
