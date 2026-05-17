@@ -1,156 +1,259 @@
 \documentclass[12pt,a4paper]{article}
 
+% ============ PACKAGES ============
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage[margin=1in]{geometry}
-\usepackage{hyperref}
-\usepackage{booktabs}
-\usepackage{enumitem}
+\usepackage{graphicx}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+\usetikzlibrary{shapes.geometric, positioning, calc, shadows}
 
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    urlcolor=blue
+% ============ COLORS ============
+\definecolor{primaryBlue}{RGB}{28, 49, 94}
+\definecolor{accentOrange}{RGB}{230, 119, 0}
+\definecolor{bgLight}{RGB}{248, 249, 250}
+\definecolor{textDark}{RGB}{33, 37, 41}
+\definecolor{terminalBg}{RGB}{43, 48, 59}
+
+% ============ HEADER/FOOTER ============
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{gray}{Aegis-IoT: Comprehensive Runbook}}
+\fancyhead[R]{\small\textcolor{gray}{AnyLogic Execution Guide}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ============ SECTION STYLING ============
+\titleformat{\section}[display]
+  {\normalfont\Large\bfseries\color{primaryBlue}}
+  {}{0pt}{\Large}[\vspace{-0.5ex}\rule{\textwidth}{1pt}]
+\titlespacing*{\section}{0pt}{15pt}{10pt}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{accentOrange}}
+  {\thesubsection}{8pt}{\large}
+
+% ============ CUSTOM BOXES ============
+\newtcolorbox{terminalBox}[1][]{
+    enhanced, breakable,
+    colback=terminalBg, coltext=white,
+    colframe=primaryBlue, boxrule=1pt, arc=3pt,
+    title={\texttt{\textcolor{white}{Terminal / Command Prompt #1}}},
+    coltitle=white, fonttitle=\bfseries,
+    fontupper=\ttfamily\small,
+    top=8pt, bottom=8pt
 }
 
-\title{Aegis-IoT Complete Execution Runbook}
-\author{CE313 Final Project}
-\date{May 2026}
+\newtcolorbox{infoBox}{
+    enhanced, breakable,
+    colback=bgLight, coltext=textDark,
+    colframe=accentOrange, boxrule=1pt, borderline west={4pt}{0pt}{accentOrange},
+    arc=0pt, outer arc=0pt,
+    left=15pt, right=15pt, top=10pt, bottom=10pt
+}
 
+% ============ HYPERREF ============
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primaryBlue,
+    citecolor=accentOrange,
+    urlcolor=primaryBlue,
+}
+
+\onehalfspacing
+
+% ==============================================
+%                  DOCUMENT
+% ==============================================
 \begin{document}
-\maketitle
 
-\section*{Purpose}
-This standalone document provides a complete step-by-step procedure to run the entire Aegis-IoT project, including model preparation, AnyLogic simulation, dashboard launch, federated learning, and database log verification.
+% ============ NEW UNIQUE TITLE PAGE ============
+\begin{titlepage}
+\begin{center}
+    \vspace*{2cm}
+    
+    % Abstract geometric logo replacing the neon grid
+    \begin{tikzpicture}
+        \foreach \i in {1,...,6} {
+            \node[regular polygon, regular polygon sides=6, minimum size=\i*2cm, draw=primaryBlue, opacity=0.2, line width=1pt] at (0,0) {};
+        }
+        \node[regular polygon, regular polygon sides=6, minimum size=2cm, fill=accentOrange, opacity=0.8] at (0,0) {};
+        \node[text=white] at (0,0) {\Huge \textbf{IoT}};
+    \end{tikzpicture}
+    
+    \vspace{2cm}
+    
+    {\fontsize{36}{42}\selectfont\bfseries\color{primaryBlue} Aegis-IoT\par}
+    \vspace{0.5cm}
+    {\fontsize{18}{24}\selectfont\bfseries\color{textDark} AnyLogic Native Execution Runbook\par}
+    
+    \vspace{1cm}
+    \rule{10cm}{2pt}
+    \vspace{1cm}
+    
+    {\large A detailed, step-by-step beginner's guide to deploying \\ the complete AI-powered network simulation pipeline natively.\par}
+    
+    \vfill
+    
+    {\textbf{Components Covered:}\\
+    AnyLogic Native Simulation $\cdot$ Java Swing Dashboards $\cdot$ M2CGen Transpilation \\
+    Reinforcement Learning (Q-Tables) $\cdot$ Federated Learning Hub\par}
+    
+    \vspace{2cm}
+    {\large \textbf{Date:} May 2026\par}
+\end{center}
+\end{titlepage}
 
-\section{Prerequisites}
-Ensure the following tools are installed:
-\begin{itemize}[leftmargin=*]
-    \item AnyLogic 8.x
-    \item Python 3.8+
-    \item Node.js 18+ and npm
-    \item Java JDK 11+
-\end{itemize}
+\tableofcontents
+\newpage
 
-Version checks:
-\begin{verbatim}
+% ==============================================
+%                  CONTENT
+% ==============================================
+
+\section*{Introduction to the Pipeline}
+This runbook provides complete, detailed instructions for compiling, deploying, and validating the Aegis-IoT environment completely within the AnyLogic engine. Our entire system operates directly out of the Java-based AnyLogic instance and Python logic—removing any external web dependencies.
+
+Aegis-IoT relies on four main pillars: Data/ML preparation (Python), Code Injection (Python), the Core Simulation Engine (AnyLogic JVM), and Native Visualization Interfaces (Java Swing).
+
+\section{Step 1: Check System Prerequisites}
+
+To run this stack natively, you need local installations of specific tools. Ensure the following are available on your system path. Open a terminal (PowerShell, Command Prompt, or VS Code terminal) and verify:
+
+\begin{terminalBox}[(Checking Versions)]
 python --version
-node --version
-npm --version
 java -version
-\end{verbatim}
+\end{terminalBox}
 
-\section{Install Dependencies}
-\subsection{Python Dependencies}
-From project root:
-\begin{verbatim}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Python (3.8+):} Required for training the Machine Learning models (Scikit-Learn), running the XML mutation scripts, and executing the Federated Learning scenarios.
+    \item \textbf{Java JDK (11+):} Required by the AnyLogic engine to compile and run the generated bytecode and custom Swing dashboards.
+    \item \textbf{AnyLogic 8.x:} You must have the AnyLogic IDE installed to actually open, compile, and run the \texttt{.alpx} modeling file natively.
+\end{itemize}
+
+\section{Step 2: Install Project Dependencies}
+
+We now need to install the external Python libraries required for our AI agents. Ensure your terminal is in the root directory (\texttt{FinalCCNProject}), then run:
+
+\begin{terminalBox}[(Python Packages)]
 pip install -r requirements.txt
-\end{verbatim}
+\end{terminalBox}
 
-\subsection{Dashboard Dependencies}
-\begin{verbatim}
-cd dashboard
-npm install
-cd ..
-\end{verbatim}
+This installs \texttt{scikit-learn} (for Random Forest/OneClassSVM), \texttt{m2cgen} (for converting ML models to native Java code), and \texttt{pandas/numpy} for data wrangling. Keep your \texttt{requirements.txt} current for any future ML additions.
 
-\section{Database Logging Setup}
-The project database scripts include a centralized table named \texttt{RUNTIME\_LOGS} to capture system logs in the database.
+\section{Step 3: Synthesize ML Models into Java (M2CGen)}
 
-Updated files:
-\begin{itemize}[leftmargin=*]
-    \item \texttt{database/db.script}
-    \item \texttt{Anylogic Models/FinalCCNProject1/database/db.script}
-\end{itemize}
+A core feature of Aegis-IoT is zero-latency inference directly inside AnyLogic. We train our machine learning models in Python and use the \texttt{m2cgen} library to transpile them straight into pure Java bytecode.
 
-Verification query:
-\begin{verbatim}
-SELECT LOG_ID, LOG_TIME, LOG_LEVEL, SOURCE_COMPONENT, EVENT_TYPE, STATUS
-FROM RUNTIME_LOGS
-ORDER BY LOG_ID;
-\end{verbatim}
+Navigate to the \texttt{model} directory and execute the training pipelines:
 
-\section{Train and Export ML Models}
-\begin{verbatim}
+\begin{terminalBox}[(ML Transpilation)]
 cd model
-python train_latency_random_forest.py
-python test_m2cgen4.py
+python train\_latency\_random\_forest.py
+python test\_m2cgen4.py
 cd ..
-\end{verbatim}
+\end{terminalBox}
 
-Expected outcome: predictor Java code is generated/updated for use in the AnyLogic runtime.
-
-\section{Inject Model Upgrades into AnyLogic Project}
-\begin{verbatim}
-cd injection_scripts
-python inject_multi_dashboard.py
-python inject_rl_and_gan.py
-cd ..
-\end{verbatim}
-
-\section{Run AnyLogic Simulation}
-\begin{enumerate}[leftmargin=*]
-    \item Open AnyLogic.
-    \item Open \texttt{Anylogic Models/FinalCCNProject1/FinalCCNProject1.alpx}.
-    \item Run the main experiment.
-\end{enumerate}
-
-Confirm the following:
-\begin{itemize}[leftmargin=*]
-    \item MQTT traffic generation starts.
-    \item ML prediction and anomaly checks are active.
-    \item RL policy updates are active.
-    \item Dashboard telemetry stream is generated.
+\textbf{What exactly did this do?}
+\begin{itemize}
+    \item \texttt{train\_latency\_random\_forest.py} trained a Voting Regressor ensemble to predict packet latency based on packet sizes, inter-arrival times, and gateway queuing. It exported this directly into \texttt{OfflineAiPredictor.java}.
+    \item \texttt{test\_m2cgen4.py} trained a OneClassSVM model on normal traffic patterns to act as an Anomaly Radar (detecting DDoS bursts). It appended this logic to the same Java file.
+    \item These intelligent models are now hardcoded natively into the Java source files, meaning AnyLogic does not need an API to perform AI inference!
 \end{itemize}
 
-\section{Run Web Dashboard}
-In a separate terminal:
-\begin{verbatim}
-cd dashboard
-npm run dev
-\end{verbatim}
-Open the Vite URL (typically \url{http://localhost:5173}).
+\section{Step 4: Inject UI and RL Features into the AnyLogic Core}
 
-\section{Run Federated Learning}
-Start server:
-\begin{verbatim}
-cd federated
-python cloud_server.py
-\end{verbatim}
+To avoid endless manual GUI work in the AnyLogic editor, Aegis-IoT uses Python scripts to perform surgical XML injection into the AnyLogic project files. 
 
-Start edge nodes (one or more terminals):
-\begin{verbatim}
-cd federated
-python edge_node.py
-\end{verbatim}
+Run the following commands from the root directory:
 
-Generate convergence plot:
-\begin{verbatim}
-cd federated
-python plot_federated.py
-\end{verbatim}
+To guarantee the model has all final improvements completely applied (including the new BiLSTM tweaks), you must run the entire injection sequence chronologically:
 
-\section{Final Validation Checklist}
+\begin{terminalBox}[(XML Mutation Engine)]
+cd injection\_scripts
+python inject\_multi\_dashboard.py
+python inject\_rl\_and\_gan.py
+python inject\_v2\_upgrades.py
+python inject\_v3\_fixes.py
+python inject\_v4\_final.py
+python inject\_v5\_safe\_tweaks.py
+python inject\_v6\_bilstm\_tweak.py
+cd ..
+\end{terminalBox}
+
+\textbf{What exactly did this do?}
+\begin{itemize}
+    \item \texttt{inject\_multi\_dashboard.py}: Modified the AnyLogic startup sequence to automatically spawn four independent \textbf{Java Swing windows} when the simulation starts.
+    \item \texttt{inject\_rl\_and\_gan.py}: Hooked the Tabular Q-Learning agent (\texttt{QTableBalancer.java}) into the Gateway objects.
+    \item \texttt{inject\_v2}-\texttt{v6}: Sequentially apply all the final model stability fixes up to the new BiLSTM tweak directly into the XML structure.
+\end{itemize}
+
+\section{Step 5: Launch the Core AnyLogic Simulation}
+
+It is time to bring the system online and prove self-contained execution. 
+
 \begin{enumerate}[leftmargin=*]
-    \item AnyLogic run completes without runtime failure.
-    \item Dashboard shows live metrics.
-    \item Federated scripts run and produce output plots.
-    \item \texttt{MQTT\_READY} receives data.
-    \item \texttt{RUNTIME\_LOGS} receives system log rows.
+    \item Open the \textbf{AnyLogic} desktop application.
+    \item Go to \textbf{File > Open} and navigate to \texttt{Anylogic Models/FinalCCNProject1}.
+    \item Select \texttt{FinalCCNProject1.alpx} (or \texttt{.alp}).
+    \item Once loaded, look at the Project explorer panel on the left. Find the \textbf{Main} experiment.
+    \item Right-click the Main experiment and select \textbf{Run} (or click the green Play button on the toolbar).
 \end{enumerate}
 
-\section{Quick Command Order}
-\begin{verbatim}
-1) pip install -r requirements.txt
-2) cd dashboard && npm install
-3) cd model && python train_latency_random_forest.py && python test_m2cgen4.py
-4) cd injection_scripts && python inject_multi_dashboard.py && python inject_rl_and_gan.py
-5) Run AnyLogic model: FinalCCNProject1.alpx
-6) cd dashboard && npm run dev
-7) cd federated && python cloud_server.py
-8) cd federated && python edge_node.py
-9) cd federated && python plot_federated.py
-\end{verbatim}
+\begin{infoBox}
+\textbf{Expected Native Behavior:} 
+A Simulation window will open. As configured by our injection scripts, \textbf{four custom Java Swing dashboards} will also pop up on your screen. The \texttt{SensorDevice} agents will begin generating MQTT packets, and you will see the \texttt{Gateway} agents actively routing them. The central database (\texttt{RUNTIME\_LOGS}) will instantly start populating with native intelligence logs.
+\end{infoBox}
+
+\section{Step 6: Run the Federated Learning Scenario}
+
+Aegis-IoT includes a decentralized intelligence suite demonstrating FedAvg (Federated Averaging). This runs independently alongside the simulation to prove privacy-preserving edge training without relying on web services.
+
+You will need to run the cloud aggregator and the edge nodes concurrently.
+
+\textbf{1. Start the Cloud Server} (Open a new terminal):
+\begin{terminalBox}[(Federated Server)]
+cd federated
+python cloud\_server.py
+\end{terminalBox}
+\textit{This server awaits connections from multiple edge nodes to combine their trained weights locally.}
+
+\textbf{2. Start an Edge Node} (Open another new terminal):
+\begin{terminalBox}[(Edge Node)]
+cd federated
+python edge\_node.py
+\end{terminalBox}
+\textit{The edge node trains an SGDRegressor strictly on local (simulated) data partitions. It transmits ONLY the weights mathematically back to the cloud server.}
+
+\textbf{3. View the Results}:
+Once the communication rounds complete, visualize the training convergence:
+\begin{terminalBox}[(Plot Output)]
+python plot\_federated.py
+\end{terminalBox}
+This outputs Matplotlib graphs demonstrating how the decentralized models converged efficiently.
+
+\section{Final Validation}
+
+If you have followed all steps, your environment should now represent a fully functioning Aegis-IoT ecosystem completely centered around AnyLogic:
+\begin{enumerate}
+    \item The AnyLogic simulator is visibly processing intelligent decision boundaries.
+    \item The transpiled M2CGen Java files are driving zero-latency logic with no backend web APIs.
+    \item The Java Swing GUI displays active radar, telemetry, and Q-Learning output directly from the JVM.
+    \item Complete logs are captured securely in local SQL databases.
+\end{enumerate}
 
 \end{document}

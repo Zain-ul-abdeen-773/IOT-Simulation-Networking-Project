@@ -1,0 +1,7 @@
+\contentsline {section}{\numberline {1}Step 1: Check System Prerequisites}{2}{section.1}%
+\contentsline {section}{\numberline {2}Step 2: Install Project Dependencies}{3}{section.2}%
+\contentsline {section}{\numberline {3}Step 3: Synthesize ML Models into Java (M2CGen)}{3}{section.3}%
+\contentsline {section}{\numberline {4}Step 4: Inject UI and RL Features into the AnyLogic Core}{4}{section.4}%
+\contentsline {section}{\numberline {5}Step 5: Launch the Core AnyLogic Simulation}{4}{section.5}%
+\contentsline {section}{\numberline {6}Step 6: Run the Federated Learning Scenario}{5}{section.6}%
+\contentsline {section}{\numberline {7}Final Validation}{6}{section.7}%
