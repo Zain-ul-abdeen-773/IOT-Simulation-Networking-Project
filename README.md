@@ -37,7 +37,8 @@
 10. [Security & Threat Detection](#10-security--threat-detection)
 11. [Results & Performance](#11-results--performance)
 12. [Academic Context](#12-academic-context)
-13. [Author](#13-author)
+13. [Complete Step-by-Step Run Instructions](#13-complete-step-by-step-run-instructions)
+14. [Author](#14-author)
 
 ---
 
@@ -635,7 +636,161 @@ The project intentionally bridges CE313 networking concepts with material from A
 
 ---
 
-## 13. Author
+## 13. Complete Step-by-Step Run Instructions
+
+This section is the full, practical execution runbook to run the complete project from zero to final outputs.
+
+### Step 1 - Verify Installed Tools
+
+Confirm all required tools are installed:
+
+- AnyLogic 8.x
+- Python 3.8+
+- Node.js 18+
+- npm (comes with Node.js)
+- Java JDK 11+ (AnyLogic-compatible)
+
+Check versions in PowerShell:
+
+```powershell
+python --version
+node --version
+npm --version
+java -version
+```
+
+### Step 2 - Install Python Dependencies
+
+From the project root:
+
+```powershell
+pip install -r requirements.txt
+```
+
+This installs libraries used by model training, injection scripts, and federated learning.
+
+### Step 3 - Install Dashboard Dependencies
+
+```powershell
+cd dashboard
+npm install
+cd ..
+```
+
+### Step 4 - Prepare and Verify Database Logging
+
+The database schema now includes a centralized runtime logs sink:
+
+- Table name: `RUNTIME_LOGS`
+- Purpose: persist simulation, AI, security, dashboard, and federated events into the database
+
+Updated DB scripts:
+
+- `database/db.script`
+- `Anylogic Models/FinalCCNProject1/database/db.script`
+
+You can verify with a SQL query after DB startup:
+
+```sql
+SELECT LOG_ID, LOG_TIME, LOG_LEVEL, SOURCE_COMPONENT, EVENT_TYPE, STATUS
+FROM RUNTIME_LOGS
+ORDER BY LOG_ID;
+```
+
+### Step 5 - Train and Export ML Models to Java
+
+```powershell
+cd model
+python train_latency_random_forest.py
+python test_m2cgen4.py
+cd ..
+```
+
+Expected result: Java inference logic is exported/updated in `model/OfflineAiPredictor.java` (and/or project predictor class depending on your script output path).
+
+### Step 6 - Inject Features into AnyLogic Model
+
+```powershell
+cd injection_scripts
+python inject_multi_dashboard.py
+python inject_rl_and_gan.py
+cd ..
+```
+
+This patches the AnyLogic model XML with dashboards and intelligence hooks.
+
+### Step 7 - Open and Run the AnyLogic Simulation
+
+1. Open AnyLogic.
+2. Open model file: `Anylogic Models/FinalCCNProject1/FinalCCNProject1.alpx`.
+3. Run the main experiment.
+4. Confirm behavior:
+    - Sensor and gateway traffic generation starts.
+    - ML inference is active.
+    - RL balancing logic is active.
+    - Dashboard telemetry stream is produced.
+
+### Step 8 - Launch the React Dashboard
+
+In a new terminal:
+
+```powershell
+cd dashboard
+npm run dev
+```
+
+Open the local URL shown by Vite (typically `http://localhost:5173`).
+
+### Step 9 - Run Federated Learning Workflow
+
+In another terminal:
+
+```powershell
+cd federated
+python cloud_server.py
+```
+
+Then start one or more edge nodes (new terminal per node):
+
+```powershell
+cd federated
+python edge_node.py
+```
+
+Plot convergence/results when rounds complete:
+
+```powershell
+cd federated
+python plot_federated.py
+```
+
+### Step 10 - Validate Full End-to-End Output
+
+Use this checklist:
+
+1. AnyLogic model runs without compile/runtime errors.
+2. Dashboard renders live charts.
+3. Federated scripts execute and produce convergence output.
+4. Database telemetry table `MQTT_READY` is populated.
+5. Centralized logs table `RUNTIME_LOGS` contains fresh log entries.
+
+### Step 11 - Recommended Execution Order (Quick Reference)
+
+```text
+1) pip install -r requirements.txt
+2) cd dashboard && npm install
+3) cd model && python train_latency_random_forest.py && python test_m2cgen4.py
+4) cd injection_scripts && python inject_multi_dashboard.py && python inject_rl_and_gan.py
+5) Run AnyLogic model (FinalCCNProject1.alpx)
+6) cd dashboard && npm run dev
+7) cd federated && python cloud_server.py
+8) cd federated && python edge_node.py (one or more nodes)
+9) cd federated && python plot_federated.py
+```
+
+---
+
+## 14. Author
 
 **Zain ul Abdeen**
 BS Artificial Intelligence — Semester 6
@@ -652,9 +807,4 @@ Ghulam Ishaq Khan Institute of Engineering Sciences and Technology (GIKI)
 *Built with the conviction that intelligence should be a bare-metal primitive, not an afterthought.*
 
 **Aegis-IoT © 2026 — GIKI, BS Artificial Intelligence**
-
-<<<<<<< HEAD
 </div>
-=======
-</div>
->>>>>>> 74dec84059f55cf451c188a8655c8b3068271b4f

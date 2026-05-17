@@ -1,0 +1,156 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+\title{Aegis-IoT Complete Execution Runbook}
+\author{CE313 Final Project}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Purpose}
+This standalone document provides a complete step-by-step procedure to run the entire Aegis-IoT project, including model preparation, AnyLogic simulation, dashboard launch, federated learning, and database log verification.
+
+\section{Prerequisites}
+Ensure the following tools are installed:
+\begin{itemize}[leftmargin=*]
+    \item AnyLogic 8.x
+    \item Python 3.8+
+    \item Node.js 18+ and npm
+    \item Java JDK 11+
+\end{itemize}
+
+Version checks:
+\begin{verbatim}
+python --version
+node --version
+npm --version
+java -version
+\end{verbatim}
+
+\section{Install Dependencies}
+\subsection{Python Dependencies}
+From project root:
+\begin{verbatim}
+pip install -r requirements.txt
+\end{verbatim}
+
+\subsection{Dashboard Dependencies}
+\begin{verbatim}
+cd dashboard
+npm install
+cd ..
+\end{verbatim}
+
+\section{Database Logging Setup}
+The project database scripts include a centralized table named \texttt{RUNTIME\_LOGS} to capture system logs in the database.
+
+Updated files:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{database/db.script}
+    \item \texttt{Anylogic Models/FinalCCNProject1/database/db.script}
+\end{itemize}
+
+Verification query:
+\begin{verbatim}
+SELECT LOG_ID, LOG_TIME, LOG_LEVEL, SOURCE_COMPONENT, EVENT_TYPE, STATUS
+FROM RUNTIME_LOGS
+ORDER BY LOG_ID;
+\end{verbatim}
+
+\section{Train and Export ML Models}
+\begin{verbatim}
+cd model
+python train_latency_random_forest.py
+python test_m2cgen4.py
+cd ..
+\end{verbatim}
+
+Expected outcome: predictor Java code is generated/updated for use in the AnyLogic runtime.
+
+\section{Inject Model Upgrades into AnyLogic Project}
+\begin{verbatim}
+cd injection_scripts
+python inject_multi_dashboard.py
+python inject_rl_and_gan.py
+cd ..
+\end{verbatim}
+
+\section{Run AnyLogic Simulation}
+\begin{enumerate}[leftmargin=*]
+    \item Open AnyLogic.
+    \item Open \texttt{Anylogic Models/FinalCCNProject1/FinalCCNProject1.alpx}.
+    \item Run the main experiment.
+\end{enumerate}
+
+Confirm the following:
+\begin{itemize}[leftmargin=*]
+    \item MQTT traffic generation starts.
+    \item ML prediction and anomaly checks are active.
+    \item RL policy updates are active.
+    \item Dashboard telemetry stream is generated.
+\end{itemize}
+
+\section{Run Web Dashboard}
+In a separate terminal:
+\begin{verbatim}
+cd dashboard
+npm run dev
+\end{verbatim}
+Open the Vite URL (typically \url{http://localhost:5173}).
+
+\section{Run Federated Learning}
+Start server:
+\begin{verbatim}
+cd federated
+python cloud_server.py
+\end{verbatim}
+
+Start edge nodes (one or more terminals):
+\begin{verbatim}
+cd federated
+python edge_node.py
+\end{verbatim}
+
+Generate convergence plot:
+\begin{verbatim}
+cd federated
+python plot_federated.py
+\end{verbatim}
+
+\section{Final Validation Checklist}
+\begin{enumerate}[leftmargin=*]
+    \item AnyLogic run completes without runtime failure.
+    \item Dashboard shows live metrics.
+    \item Federated scripts run and produce output plots.
+    \item \texttt{MQTT\_READY} receives data.
+    \item \texttt{RUNTIME\_LOGS} receives system log rows.
+\end{enumerate}
+
+\section{Quick Command Order}
+\begin{verbatim}
+1) pip install -r requirements.txt
+2) cd dashboard && npm install
+3) cd model && python train_latency_random_forest.py && python test_m2cgen4.py
+4) cd injection_scripts && python inject_multi_dashboard.py && python inject_rl_and_gan.py
+5) Run AnyLogic model: FinalCCNProject1.alpx
+6) cd dashboard && npm run dev
+7) cd federated && python cloud_server.py
+8) cd federated && python edge_node.py
+9) cd federated && python plot_federated.py
+\end{verbatim}
+
+\end{document}
